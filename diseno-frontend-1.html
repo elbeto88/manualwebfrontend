@@ -1,0 +1,3774 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Diseño Frontend · Guía completa con 100 ejemplos</title>
+<style>
+  /* === Reset y variables === */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg1: #1a1a2e; --bg2: #16213e; --bg3: #0f3460;
+    --cyan: #00d9ff; --pink: #ff2e63; --yellow: #ffd93d;
+    --green: #6bcb77; --purple: #9d4edd; --orange: #ff9f1c;
+    --text: #eaeaea; --muted: #a0a0b0;
+    --code-bg: #0d1117;
+  }
+  html { scroll-behavior: smooth; scroll-padding-top: 70px; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--text);
+    background: linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 40%, var(--bg3) 100%);
+    background-attachment: fixed;
+    line-height: 1.55;
+    padding-bottom: 40px;
+    overflow-x: hidden;
+  }
+
+  /* === Barra de progreso superior === */
+  .progress-bar {
+    position: fixed; top: 0; left: 0; right: 0; height: 3px;
+    background: rgba(255,255,255,0.06); z-index: 60;
+  }
+  .progress-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--cyan), var(--pink), var(--yellow));
+    transition: width 0.1s linear;
+  }
+
+  /* === Topbar === */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    height: 56px; margin-top: 3px;
+    display: flex; align-items: center; gap: 10px; padding: 0 12px;
+    background: rgba(15,15,30,0.92);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .icon-btn {
+    background: transparent; border: none; color: var(--text);
+    font-size: 22px; padding: 8px 10px; cursor: pointer;
+    border-radius: 8px; line-height: 1;
+  }
+  .icon-btn:active { background: rgba(255,255,255,0.1); }
+  .topbar-title {
+    flex: 1; font-weight: 700; font-size: 15px;
+    background: linear-gradient(90deg, var(--cyan), var(--pink));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .progress-text {
+    font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums;
+    background: rgba(255,255,255,0.06); padding: 4px 10px; border-radius: 20px;
+  }
+
+  /* === Menú lateral === */
+  .menu {
+    position: fixed; inset: 0; background: rgba(10,10,25,0.98);
+    z-index: 100; padding: 20px 16px; overflow-y: auto;
+    transform: translateX(-100%); transition: transform 0.3s ease;
+    -webkit-overflow-scrolling: touch;
+  }
+  .menu.open { transform: translateX(0); }
+  .menu-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .menu-header h3 {
+    margin: 0; font-size: 1.2rem;
+    background: linear-gradient(90deg, var(--cyan), var(--pink));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .menu ul { list-style: none; padding: 0; margin: 0; }
+  .menu li { margin-bottom: 4px; }
+  .menu li.menu-section {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--muted); padding: 14px 8px 6px; font-weight: 700;
+  }
+  .menu li a {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+    color: var(--text); text-decoration: none;
+    padding: 10px 12px; border-radius: 10px; font-size: 14px;
+    transition: background 0.2s;
+  }
+  .menu li a:hover { background: rgba(255,255,255,0.1); }
+  .menu li a.active {
+    background: linear-gradient(135deg, rgba(0,217,255,0.2), rgba(157,78,221,0.2));
+    border-color: var(--cyan); color: #fff;
+  }
+  .menu li a .num {
+    font-size: 11px; color: var(--cyan); font-weight: 800; min-width: 24px;
+  }
+
+  /* === Contenido principal === */
+  main { max-width: 820px; margin: 0 auto; padding: 0 16px; }
+  section { padding: 32px 0; border-bottom: 1px dashed rgba(255,255,255,0.08); }
+  section:last-child { border-bottom: none; }
+
+  /* === Hero === */
+  .hero { text-align: center; padding: 60px 0 40px; }
+  .hero .emoji { font-size: 4.5rem; display: block; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-12px) rotate(3deg); } }
+  h1.hero-title {
+    font-size: clamp(2.2rem, 6vw, 3.5rem); margin: 0 0 16px; line-height: 1.05;
+    background: linear-gradient(135deg, var(--cyan), var(--pink), var(--yellow));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    font-weight: 800;
+  }
+  .hero p { color: var(--muted); margin: 0 auto; max-width: 540px; font-size: clamp(15px, 2vw, 18px); }
+  .hero .meta {
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+    margin-top: 24px;
+  }
+  .hero .meta span {
+    background: rgba(255,255,255,0.06); color: var(--muted);
+    padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  }
+
+  /* === Títulos de sección === */
+  h2.section-title {
+    font-size: clamp(1.5rem, 4vw, 2.2rem); margin: 0 0 10px; line-height: 1.15;
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  h2.section-title .emoji-big { font-size: 1.3em; }
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 800;
+    letter-spacing: 1px; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 20px; margin-bottom: 12px;
+  }
+  .badge.cyan   { background: rgba(0,217,255,0.15);  color: var(--cyan); }
+  .badge.pink   { background: rgba(255,46,99,0.15);  color: var(--pink); }
+  .badge.yellow { background: rgba(255,217,61,0.15); color: var(--yellow); }
+  .badge.green  { background: rgba(107,203,119,0.15); color: var(--green); }
+  .badge.purple { background: rgba(157,78,221,0.15); color: var(--purple); }
+  .badge.orange { background: rgba(255,159,28,0.15); color: var(--orange); }
+
+  section p { margin: 0 0 12px; color: #d0d0e0; }
+  section code.inline {
+    background: rgba(255,255,255,0.1); padding: 2px 6px;
+    border-radius: 4px; font-size: 13px;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    color: var(--yellow);
+  }
+
+  .intro-text {
+    background: rgba(255,255,255,0.04); padding: 14px 18px;
+    border-left: 3px solid var(--cyan); border-radius: 6px;
+    margin: 16px 0 24px; font-size: 15px;
+  }
+
+  /* === Chips (conceptos clave) === */
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+  .chip {
+    font-size: 11px; padding: 4px 10px; border-radius: 12px;
+    background: rgba(255,255,255,0.08); color: #ccc;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  }
+
+  /* === Bloques de código === */
+  .code-wrap {
+    position: relative; margin: 16px 0; border-radius: 12px;
+    overflow: hidden; border: 1px solid rgba(255,255,255,0.08);
+    background: var(--code-bg);
+  }
+  .code {
+    display: block; width: 100%; min-height: 120px;
+    background: var(--code-bg); color: #e6edf3;
+    font-family: ui-monospace, "SF Mono", Consolas, "Courier New", monospace;
+    font-size: 12.5px; line-height: 1.55; padding: 16px 56px 16px 16px;
+    border: none; resize: none; outline: none;
+    white-space: pre; overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .copy-btn {
+    position: absolute; top: 8px; right: 8px;
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    color: #001; border: none; font-size: 12px; font-weight: 800;
+    padding: 6px 12px; border-radius: 20px; cursor: pointer;
+    z-index: 2; box-shadow: 0 2px 10px rgba(0,217,255,0.3);
+    transition: transform 0.15s;
+  }
+  .copy-btn:active { transform: scale(0.94); }
+  .copy-btn.ok { background: linear-gradient(135deg, var(--green), var(--cyan)); }
+
+  /* === Tip / nota === */
+  .tip {
+    background: rgba(107,203,119,0.1); border-left: 3px solid var(--green);
+    padding: 10px 12px; border-radius: 6px;
+    font-size: 13px; color: #cfe; margin: 8px 0 0;
+  }
+  .tip code {
+    background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 3px;
+    font-family: ui-monospace, monospace; color: var(--yellow); font-size: 12px;
+  }
+  .tip::before { content: "💡 "; }
+
+  /* === Ejemplo individual === */
+  .ejemplo { margin: 28px 0 8px; padding-top: 20px; border-top: 1px dashed rgba(255,255,255,0.06); }
+  .ejemplo:first-of-type { border-top: none; padding-top: 12px; }
+  .ejemplo h3 {
+    font-size: 1.05rem; margin: 0 0 8px; color: var(--text);
+    display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  }
+  .ejemplo h3 .num {
+    display: inline-block; min-width: 26px; height: 26px;
+    line-height: 26px; text-align: center;
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    color: #001; border-radius: 50%; font-size: 13px; font-weight: 800;
+  }
+  .ejemplo p { font-size: 14px; color: #b8b8c8; margin-bottom: 10px; }
+
+  /* === Chuleta final === */
+  .cheat-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 16px; }
+  .cheat-item {
+    background: rgba(255,255,255,0.05); border-radius: 10px;
+    padding: 12px 14px; border-left: 3px solid var(--cyan);
+  }
+  .cheat-item h4 {
+    margin: 0 0 6px; font-size: 14px; color: var(--cyan);
+  }
+  .cheat-item code {
+    display: block; font-family: ui-monospace, monospace;
+    color: var(--yellow); font-size: 12px; margin: 4px 0;
+  }
+  .cheat-item small { color: var(--muted); font-size: 12px; }
+
+  /* === Scroll top === */
+  #scroll-top {
+    position: fixed; bottom: 20px; right: 20px;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    color: #001; border: none; font-size: 22px; font-weight: 900;
+    cursor: pointer; box-shadow: 0 4px 20px rgba(0,217,255,0.4);
+    opacity: 0; pointer-events: none; transition: opacity 0.3s, transform 0.3s;
+    z-index: 40; transform: translateY(10px);
+  }
+  #scroll-top.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+  /* === Toast === */
+  .toast {
+    position: fixed; bottom: 80px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: linear-gradient(135deg, var(--green), var(--cyan));
+    color: #001; padding: 10px 20px; border-radius: 24px;
+    font-weight: 800; font-size: 13px; opacity: 0;
+    transition: opacity 0.25s, transform 0.25s;
+    z-index: 200; pointer-events: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 640px) {
+    .code { font-size: 11.5px; padding: 14px 50px 14px 14px; }
+    h2.section-title { font-size: 1.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+
+<header class="topbar">
+  <button class="icon-btn" id="menu-btn" aria-label="Abrir menú">☰</button>
+  <div class="topbar-title">Diseño Frontend · Guía completa</div>
+  <div class="progress-text" id="progress-text">0%</div>
+</header>
+
+<nav class="menu" id="menu">
+  <div class="menu-header">
+    <h3>Índice</h3>
+    <button class="icon-btn" id="close-menu" aria-label="Cerrar menú">✕</button>
+  </div>
+  <ul>
+    <li class="menu-section">Inicio</li>
+    <li><a href="#portada"><span class="num">☀</span> Portada</a></li>
+    <li><a href="#intro"><span class="num">?</span> ¿Qué es frontend?</a></li>
+    <li class="menu-section">Los 10 temas esenciales</li>
+    <li><a href="#semantico"><span class="num">1</span> HTML Semántico</a></li>
+    <li><a href="#css-moderno"><span class="num">2</span> CSS Moderno (Variables y funciones)</a></li>
+    <li><a href="#flexbox"><span class="num">3</span> Flexbox</a></li>
+    <li><a href="#grid"><span class="num">4</span> CSS Grid</a></li>
+    <li><a href="#responsive"><span class="num">5</span> Diseño Responsive</a></li>
+    <li><a href="#tipografia"><span class="num">6</span> Tipografía</a></li>
+    <li><a href="#color"><span class="num">7</span> Color</a></li>
+    <li><a href="#animaciones"><span class="num">8</span> Animaciones</a></li>
+    <li><a href="#accesibilidad"><span class="num">9</span> Accesibilidad</a></li>
+    <li><a href="#visual"><span class="num">10</span> Diseño Visual</a></li>
+    <li class="menu-section">Cierre</li>
+    <li><a href="#chuleta"><span class="num">★</span> Chuleta final</a></li>
+    <li><a href="#mini-proyecto"><span class="num">🚀</span> Mini-proyecto</a></li>
+  </ul>
+</nav>
+
+<main>
+
+  <!-- PORTADA -->
+  <section id="portada" class="hero">
+    <span class="emoji">🎨</span>
+    <h1 class="hero-title">Diseño Frontend</h1>
+    <p>Guía completa para principiantes con los <strong>10 temas esenciales</strong> y <strong>100 ejemplos copiar y pegar</strong>. Sintetiza HTML semántico, CSS moderno, Flexbox, Grid, Responsive, Tipografía, Color, Animaciones, Accesibilidad y Diseño visual.</p>
+    <div class="meta">
+      <span>📦 1 solo archivo</span>
+      <span>🎯 10 temas</span>
+      <span>✨ 100 ejemplos</span>
+      <span>📋 Copiar y pegar</span>
+      <span>♿ Accesible</span>
+    </div>
+  </section>
+
+  <!-- INTRODUCCIÓN -->
+
+  <section id="intro">
+    <span class="badge cyan">Concepto</span>
+    <h2 class="section-title">¿Qué es el diseño frontend?</h2>
+    <p>El <strong>frontend</strong> es la parte de la web que el usuario <strong>ve y toca</strong>: botones, textos, colores, animaciones. Está hecho con tres lenguajes que trabajan juntos como un equipo de cocina:</p>
+    <div class="chips">
+      <span class="chip">HTML = esqueleto</span>
+      <span class="chip">CSS = ropa</span>
+      <span class="chip">JS = movimiento</span>
+    </div>
+    <p><strong>HTML</strong> define la estructura (qué es cada cosa: un título, un párrafo, una imagen). <strong>CSS</strong> define el aspecto (colores, tamaños, posición). <strong>JavaScript</strong> añade interactividad (clics, validaciones, animaciones dinámicas).</p>
+    <p>En esta guía verás los <strong>10 temas esenciales del diseño frontend</strong> con 10 ejemplos prácticos cada uno. Todos copiar y pegar. Todos listos para ver funcionando en tu navegador.</p>
+    <div class="tip">Copia el bloque, pégalo en un archivo <code>index.html</code>, ábrelo en el navegador. ¡Verás el resultado enseguida!</div>
+  </section>
+
+
+  <!-- 10 TEMAS -->
+
+  <section id="semantico">
+    <span class="badge cyan">Tema 1 · HTML Semántico</span>
+    <h2 class="section-title"><span class="emoji-big">🏗️</span> HTML Semántico</h2>
+    <div class="intro-text">HTML semántico significa usar etiquetas que <strong>tienen significado</strong>: <code>&lt;header&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;article&gt;</code>... En vez de usar solo <code>&lt;div&gt;</code> para todo. Así el navegador, Google y los lectores de pantalla entienden qué es cada cosa.</div>
+
+  <div class="ejemplo">
+    <h3><span class="num">1</span> Estructura básica de una página</h3>
+    <p>Una página web se compone de cabezal, navegación, contenido principal y pie. Cada uno con su etiqueta semántica.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html lang="es"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Mi página&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;header&gt;
+    &lt;h1&gt;Mi sitio&lt;/h1&gt;
+  &lt;/header&gt;
+
+  &lt;nav&gt;
+    &lt;a href="#"&gt;Inicio&lt;/a&gt;
+    &lt;a href="#"&gt;Sobre mí&lt;/a&gt;
+    &lt;a href="#"&gt;Contacto&lt;/a&gt;
+  &lt;/nav&gt;
+
+  &lt;main&gt;
+    &lt;h2&gt;Bienvenido&lt;/h2&gt;
+    &lt;p&gt;Este es el contenido principal.&lt;/p&gt;
+  &lt;/main&gt;
+
+  &lt;footer&gt;
+    &lt;p&gt;© 2025 Mi sitio&lt;/p&gt;
+  &lt;/footer&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+    </div>
+    <div class="tip">Piensa en <code>&lt;header&gt;</code> como el saludo, <code>&lt;main&gt;</code> como el plato principal y <code>&lt;footer&gt;</code> como la despedida.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">2</span> Article vs Section: cuándo usar cada uno</h3>
+    <p><code>&lt;article&gt;</code> es contenido independiente (un post, una noticia). <code>&lt;section&gt;</code> es una agrupación temática dentro de una página.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;main&gt;
+  &lt;!-- Un post de blog: podría vivir solo y tener sentido --&gt;
+  &lt;article&gt;
+    &lt;h2&gt;Cómo aprender HTML&lt;/h2&gt;
+    &lt;p&gt;HTML es el lenguaje de la web...&lt;/p&gt;
+  &lt;/article&gt;
+
+  &lt;!-- Una sección temática dentro de la página --&gt;
+  &lt;section&gt;
+    &lt;h2&gt;Comentarios&lt;/h2&gt;
+    &lt;p&gt;Los lectores dicen:&lt;/p&gt;
+  &lt;/section&gt;
+&lt;/main&gt;</textarea>
+    </div>
+    <div class="tip">Si puedes copiarlo y pegarlo en otra página sin perder sentido → es un <code>&lt;article&gt;</code>.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">3</span> Aside para contenido lateral</h3>
+    <p>El <code>&lt;aside&gt;</code> es contenido relacionado pero no esencial: una barra lateral, anuncios, enlaces relacionados.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;main&gt;
+  &lt;article&gt;
+    &lt;h2&gt;Receta de pan&lt;/h2&gt;
+    &lt;p&gt;Mezcla harina y agua...&lt;/p&gt;
+  &lt;/article&gt;
+
+  &lt;aside&gt;
+    &lt;h3&gt;Recetas relacionadas&lt;/h3&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Pan integral&lt;/li&gt;
+      &lt;li&gt;Pan de centeno&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/aside&gt;
+&lt;/main&gt;</textarea>
+    </div>
+    <div class="tip">Si lo quitas y el artículo sigue teniendo sentido → es un <code>&lt;aside&gt;</code>.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">4</span> Figure y figcaption: imágenes con descripción</h3>
+    <p>Cuando una imagen necesita un pie de foto, usa <code>&lt;figure&gt;</code> + <code>&lt;figcaption&gt;</code>. Asocias visualmente la imagen con su descripción.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;figure&gt;
+  &lt;img src="gato.jpg" alt="Gato durmiendo en un sofá"&gt;
+  &lt;figcaption&gt;Mi gato Luna, durmiendo la siesta.&lt;/figcaption&gt;
+&lt;/figure&gt;</textarea>
+    </div>
+    <div class="tip">El <code>&lt;figcaption&gt;</code> NO sustituye al <code>alt</code>. El <code>alt</code> es para lectores de pantalla, el <code>figcaption</code> es para todos.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">5</span> Nav para menús de navegación</h3>
+    <p>Reserva <code>&lt;nav&gt;</code> para los menús PRINCIPALES de navegación. No lo uses para cualquier lista de enlaces.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;nav&gt;
+  &lt;ul&gt;
+    &lt;li&gt;&lt;a href="/"&gt;Inicio&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="/blog"&gt;Blog&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="/contacto"&gt;Contacto&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;
+
+&lt;!-- Esto NO necesita &lt;nav&gt;, es solo una lista --&gt;
+&lt;footer&gt;
+  &lt;p&gt;Mira también: &lt;a href="/privacidad"&gt;Privacidad&lt;/a&gt; · &lt;a href="/cookies"&gt;Cookies&lt;/a&gt;&lt;/p&gt;
+&lt;/footer&gt;</textarea>
+    </div>
+    <div class="tip">Una página puede tener varios <code>&lt;nav&gt;</code> (uno principal, otro en el pie) pero úsalo solo para menús reales.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">6</span> Mark para resaltar texto</h3>
+    <p><code>&lt;mark&gt;</code> resalta texto como si fuera un rotulador amarillo. Útil para resultados de búsqueda o texto relevante.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;p&gt;
+  Encontramos 3 coincidencias para
+  &lt;mark&gt;HTML semántico&lt;/mark&gt;
+  en este documento.
+&lt;/p&gt;</textarea>
+    </div>
+    <div class="tip">Visualmente el navegador lo pinta amarillo por defecto. Puedes cambiarlo con CSS: <code>mark { background: lime; }</code></div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">7</span> Time para fechas legibles por máquinas</h3>
+    <p><code>&lt;time&gt;</code> indica que algo es una fecha. El atributo <code>datetime</code> usa formato ISO (ej. 2025-03-15) para que Google y calendarios lo entiendan.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;article&gt;
+  &lt;h2&gt;Mi cumpleaños&lt;/h2&gt;
+  &lt;p&gt;
+    La fiesta será el
+    &lt;time datetime="2025-03-15"&gt;15 de marzo de 2025&lt;/time&gt;.
+  &lt;/p&gt;
+&lt;/article&gt;</textarea>
+    </div>
+    <div class="tip">El texto visible puede ser humano ('15 de marzo'), el <code>datetime</code> va en formato máquina ('2025-03-15').</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">8</span> Details y Summary: acordeón nativo</h3>
+    <p>Crea un elemento desplegable SIN JavaScript. El navegador se encarga de abrirlo y cerrarlo.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;details&gt;
+  &lt;summary&gt;¿Qué es HTML semántico?&lt;/summary&gt;
+  &lt;p&gt;Usar etiquetas con significado (header, main, footer...) en lugar de divs genéricos.&lt;/p&gt;
+&lt;/details&gt;
+
+&lt;details open&gt;
+  &lt;summary&gt;¿Por qué importa?&lt;/summary&gt;
+  &lt;p&gt;Mejora SEO, accesibilidad y mantenimiento del código.&lt;/p&gt;
+&lt;/details&gt;</textarea>
+    </div>
+    <div class="tip">El atributo <code>open</code> en <code>&lt;details&gt;</code> lo muestra abierto al cargar la página.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">9</span> Blockquote para citas</h3>
+    <p>Cuando citas texto de otra fuente, usa <code>&lt;blockquote&gt;</code>. El atributo <code>cite</code> indica la URL de origen.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;blockquote cite="https://es.wikipedia.org/wiki/HTML"&gt;
+  &lt;p&gt;HTML es un lenguaje de marcado para la elaboración de páginas web.&lt;/p&gt;
+  &lt;footer&gt;— Wikipedia, &lt;cite&gt;HTML&lt;/cite&gt;&lt;/footer&gt;
+&lt;/blockquote&gt;</textarea>
+    </div>
+    <div class="tip">Para citas cortas dentro de un párrafo, usa <code>&lt;q&gt;</code> (añade comillas automáticamente).</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">10</span> Página semántica completa</h3>
+    <p>Junta todas las etiquetas semánticas en una estructura real de blog.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html lang="es"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Mi blog de cocina&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;header&gt;
+    &lt;h1&gt;Recetas de la abuela&lt;/h1&gt;
+    &lt;nav&gt;
+      &lt;a href="/"&gt;Inicio&lt;/a&gt;
+      &lt;a href="/recetas"&gt;Recetas&lt;/a&gt;
+      &lt;a href="/sobre"&gt;Sobre mí&lt;/a&gt;
+    &lt;/nav&gt;
+  &lt;/header&gt;
+
+  &lt;main&gt;
+    &lt;article&gt;
+      &lt;h2&gt;Pan casero&lt;/h2&gt;
+      &lt;time datetime="2025-03-15"&gt;15 marzo 2025&lt;/time&gt;
+
+      &lt;p&gt;Esta receta lleva &lt;mark&gt;3 ingredientes&lt;/mark&gt;:&lt;/p&gt;
+
+      &lt;section&gt;
+        &lt;h3&gt;Ingredientes&lt;/h3&gt;
+        &lt;ul&gt;&lt;li&gt;Harina&lt;/li&gt;&lt;li&gt;Agua&lt;/li&gt;&lt;li&gt;Sal&lt;/li&gt;&lt;/ul&gt;
+      &lt;/section&gt;
+
+      &lt;section&gt;
+        &lt;h3&gt;Pasos&lt;/h3&gt;
+        &lt;p&gt;Mezcla todo y hornea 30 min a 200°C.&lt;/p&gt;
+      &lt;/section&gt;
+
+      &lt;blockquote cite="https://abuela.com"&gt;
+        &lt;p&gt;"El pan hecho en casa sabe mejor."&lt;/p&gt;
+      &lt;/blockquote&gt;
+    &lt;/article&gt;
+
+    &lt;aside&gt;
+      &lt;h3&gt;Recetas populares&lt;/h3&gt;
+      &lt;ul&gt;&lt;li&gt;Pizza&lt;/li&gt;&lt;li&gt;Croquetas&lt;/li&gt;&lt;/ul&gt;
+    &lt;/aside&gt;
+  &lt;/main&gt;
+
+  &lt;footer&gt;
+    &lt;p&gt;© 2025 · Hecho con cariño&lt;/p&gt;
+  &lt;/footer&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+    </div>
+    <div class="tip">Esta plantilla es la base de casi cualquier blog real. ¡Cópiala y adáptala!</div>
+  </div>
+  </section>
+
+
+  <section id="css-moderno">
+    <span class="badge purple">Tema 2 · CSS Moderno (Variables y funciones)</span>
+    <h2 class="section-title"><span class="emoji-big">⚙️</span> CSS Moderno (Variables y funciones)</h2>
+    <div class="intro-text">El CSS moderno tiene <strong>variables</strong> (como en programación) y <strong>funciones matemáticas</strong> como <code>calc()</code>, <code>min()</code>, <code>max()</code> y <code>clamp()</code>. Permiten temas, diseños responsive y cálculos sin JavaScript.</div>
+
+  <div class="ejemplo">
+    <h3><span class="num">1</span> Variables CSS básicas en :root</h3>
+    <p>Define colores y tamaños una sola vez en <code>:root</code> (variable global). Si quieres cambiar un color, lo haces en UN sitio.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">:root {
+  --color-principal: #00d9ff;
+  --color-fondo: #0f172a;
+  --tamano-texto: 16px;
+  --espacio: 16px;
+}
+
+body {
+  background: var(--color-fondo);
+  font-size: var(--tamano-texto);
+}
+
+h1 {
+  color: var(--color-principal);
+  margin-bottom: var(--espacio);
+}</textarea>
+    </div>
+    <div class="tip">Las variables siempre empiezan con <code>--</code>. Se definen dentro de un bloque (normalmente <code>:root</code>).</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">2</span> var() con valor de respaldo (fallback)</h3>
+    <p>Si una variable no existe, puedes dar un valor de emergencia separado por coma.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">h1 {
+  /* Si --color no está definida, usa #333 */
+  color: var(--color, #333);
+
+  /* Si --tamano no está, usa 18px */
+  font-size: var(--tamano, 18px);
+}</textarea>
+    </div>
+    <div class="tip">Útil cuando usas variables que pueden venir de otro archivo CSS o de JavaScript.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">3</span> Variables locales vs globales</h3>
+    <p>Las variables en <code>:root</code> son globales (valen en todo). Las variables dentro de un selector son locales (solo en ese bloque).</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">:root {
+  --color: blue;  /* Global */
+}
+
+.card {
+  --color-card: red;  /* Solo existe dentro de .card */
+  background: var(--color-card);
+  color: var(--color);  /* Usa la global */
+}
+
+button {
+  /* color-card NO existe aquí, daría error */
+  background: var(--color);  /* Sí, blue */
+}</textarea>
+    </div>
+    <div class="tip">Definir variables locales te permite tener variantes: una <code>.card-azul</code> con <code>--color: blue</code> y una <code>.card-roja</code> con <code>--color: red</code>.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">4</span> Cambiar variables con JavaScript (modo oscuro)</h3>
+    <p>Puedes leer y escribir variables CSS desde JS. Ideal para temas dinámicos.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html lang="es"&gt;
+&lt;head&gt;
+&lt;style&gt;
+  :root {
+    --fondo: white;
+    --texto: black;
+  }
+  body {
+    background: var(--fondo);
+    color: var(--texto);
+    transition: background 0.3s, color 0.3s;
+  }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Mi web&lt;/h1&gt;
+  &lt;button id="cambiar"&gt;Cambiar tema&lt;/button&gt;
+
+  &lt;script&gt;
+    const root = document.documentElement;
+    let oscuro = false;
+
+    document.getElementById('cambiar').addEventListener('click', () =&gt; {
+      oscuro = !oscuro;
+      root.style.setProperty('--fondo', oscuro ? '#1a1a2e' : 'white');
+      root.style.setProperty('--texto', oscuro ? 'white' : 'black');
+    });
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+    </div>
+    <div class="tip">Cambiar una variable en <code>:root</code> actualiza TODOS los elementos que la usan. ¡Magia!</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">5</span> calc(): cálculos en CSS</h3>
+    <p>Haz operaciones matemáticas mezclando unidades. <strong>Importante:</strong> deja espacios alrededor del operador.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">.caja {
+  /* 100% del ancho menos 40px */
+  width: calc(100% - 40px);
+
+  /* Altura: viewport menos el header de 60px */
+  height: calc(100vh - 60px);
+
+  /* Tamaño de fuente: 16px + 2vw (responsive) */
+  font-size: calc(16px + 2vw);
+
+  /* Padding: 1em + 10px */
+  padding: calc(1em + 10px);
+}</textarea>
+    </div>
+    <div class="tip">El error más común: <code>calc(100%-40px)</code> sin espacios. No funciona. Necesita <code>calc(100% - 40px)</code>.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">6</span> min() y max(): límites dinámicos</h3>
+    <p><code>min()</code> devuelve el valor más pequeño. <code>max()</code> el más grande. Perfecto para responsive sin media queries.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">.caja {
+  /* El ancho será el menor entre 600px y el 80% del viewport */
+  /* En móvil: 80vw es menor (ej. 320px) → usa 320px */
+  /* En desktop: 600px es menor → usa 600px */
+  width: min(600px, 80%);
+
+  /* El padding será el mayor entre 20px y 5% */
+  padding: max(20px, 5%);
+}</textarea>
+    </div>
+    <div class="tip"><code>min()</code> es ideal para anchos máximos responsive. Reemplaza a <code>max-width</code> + matemáticas.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">7</span> clamp(): el rey del responsive</h3>
+    <p><code>clamp(mínimo, preferido, máximo)</code> devuelve un valor que nunca baja del mínimo ni sube del máximo. Perfecto para tipografía responsive.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">h1 {
+  /* El tamaño será: nunca menos de 1.5rem, nunca más de 3rem,
+     y entre medias intenta ser 5vw */
+  font-size: clamp(1.5rem, 5vw, 3rem);
+}
+
+p {
+  /* Padding responsive automático */
+  padding: clamp(1rem, 3vw, 2rem);
+}</textarea>
+    </div>
+    <div class="tip">Con <code>clamp()</code> puedes hacer tipografía responsive SIN media queries. ¡Una sola línea!</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">8</span> Heredar variables</h3>
+    <p>Las variables se heredan por defecto de padres a hijos. Si una variable se redefine en un hijo, ese valor predomina en sus descendientes.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">:root {
+  --tamano-base: 16px;
+}
+
+body {
+  font-size: var(--tamano-base);  /* 16px */
+}
+
+.card {
+  --tamano-base: 20px;  /* Redefine localmente */
+  font-size: var(--tamano-base);  /* 20px aquí */
+}
+
+.card p {
+  font-size: var(--tamano-base);  /* Hereda 20px de .card */
+}</textarea>
+    </div>
+    <div class="tip">Esta técnica es la base de los temas por componente: cada tarjeta puede tener su propio 'look' cambiando variables locales.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">9</span> Sistema completo de tema claro/oscuro</h3>
+    <p>Define variables para ambos temas y cámbialas con una clase en <code>body</code>.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">:root {
+  /* Tema claro por defecto */
+  --bg: #ffffff;
+  --texto: #1a1a1a;
+  --primario: #0066ff;
+  --borde: #e2e8f0;
+}
+
+body.dark {
+  /* Sobrescribe para tema oscuro */
+  --bg: #1a1a2e;
+  --texto: #f1f5f9;
+  --primario: #00d9ff;
+  --borde: #334155;
+}
+
+body {
+  background: var(--bg);
+  color: var(--texto);
+}
+
+button {
+  background: var(--primario);
+  color: var(--bg);
+  border: 1px solid var(--borde);
+}</textarea>
+    </div>
+    <div class="tip">Con <code>prefers-color-scheme: dark</code> puedes detectar automáticamente el tema del sistema del usuario.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">10</span> Sistema completo de diseño con variables</h3>
+    <p>Junta variables para colores, tamaños y espacios en un sistema reusable.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">:root {
+  /* Paleta de colores */
+  --color-primario: #00d9ff;
+  --color-secundario: #ff2e63;
+  --color-fondo: #0f172a;
+  --color-texto: #e2e8f0;
+  --color-borde: #334155;
+
+  /* Espaciado (escala consistente) */
+  --espacio-xs: 4px;
+  --espacio-sm: 8px;
+  --espacio-md: 16px;
+  --espacio-lg: 24px;
+  --espacio-xl: 40px;
+
+  /* Tipografía */
+  --fuente: system-ui, sans-serif;
+  --texto-base: 16px;
+  --texto-h1: clamp(2rem, 5vw, 3rem);
+
+  /* Radios y sombras */
+  --radio: 12px;
+  --sombra: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+body {
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  font-family: var(--fuente);
+  font-size: var(--texto-base);
+  padding: var(--espacio-xl);
+}
+
+h1 {
+  font-size: var(--texto-h1);
+  color: var(--color-primario);
+  margin-bottom: var(--espacio-md);
+}
+
+.card {
+  background: var(--color-borde);
+  padding: var(--espacio-lg);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}</textarea>
+    </div>
+    <div class="tip">Tener un sistema así te permite rediseñar toda tu web cambiando 5 líneas en <code>:root</code>.</div>
+  </div>
+  </section>
+
+
+  <section id="flexbox">
+    <span class="badge pink">Tema 3 · Flexbox</span>
+    <h2 class="section-title"><span class="emoji-big">📐</span> Flexbox</h2>
+    <div class="intro-text">Flexbox sirve para alinear elementos en <strong>una sola dirección</strong> (fila o columna). Es ideal para componentes: barras de navegación, tarjetas, botones, menús. Si necesitas filas Y columnas, usa Grid.</div>
+
+  <div class="ejemplo">
+    <h3><span class="num">1</span> display: flex básico</h3>
+    <p>Convierte un contenedor en flex. Sus hijos se ponen en fila por defecto.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;style&gt;
+  .contenedor {
+    display: flex;
+    background: #0f172a;
+    padding: 10px;
+  }
+  .contenedor div {
+    background: #00d9ff;
+    color: #000;
+    padding: 20px;
+    margin: 4px;
+    border-radius: 6px;
+  }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class="contenedor"&gt;
+    &lt;div&gt;Uno&lt;/div&gt;
+    &lt;div&gt;Dos&lt;/div&gt;
+    &lt;div&gt;Tres&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+    </div>
+    <div class="tip">Antes de flexbox, alinear elementos en fila era un dolor de cabeza con <code>float</code>. Ahora es una línea.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">2</span> flex-direction: fila o columna</h3>
+    <p>Cambia la dirección: <code>row</code> (horizontal, por defecto) o <code>column</code> (vertical).</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .fila {
+    display: flex;
+    flex-direction: row;  /* Por defecto, en fila */
+  }
+  .columna {
+    display: flex;
+    flex-direction: column;  /* En columna */
+  }
+  .fila div, .columna div {
+    background: #00d9ff;
+    padding: 15px;
+    margin: 4px;
+  }
+&lt;/style&gt;
+
+&lt;div class="fila"&gt;
+  &lt;div&gt;A&lt;/div&gt;&lt;div&gt;B&lt;/div&gt;&lt;div&gt;C&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="columna"&gt;
+  &lt;div&gt;A&lt;/div&gt;&lt;div&gt;B&lt;/div&gt;&lt;div&gt;C&lt;/div&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip"><code>row-reverse</code> y <code>column-reverse</code> invierten el orden visual sin cambiar el HTML.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">3</span> justify-content: alinear horizontalmente</h3>
+    <p>Distribuye los elementos a lo largo del eje principal (horizontal en fila).</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .flex {
+    display: flex;
+    background: #1a1a2e;
+    margin-bottom: 8px;
+    padding: 8px;
+  }
+  .start    { justify-content: flex-start; }    /* Izquierda */
+  .center   { justify-content: center; }       /* Centro */
+  .end      { justify-content: flex-end; }      /* Derecha */
+  .between  { justify-content: space-between; } /* Extremos */
+  .around   { justify-content: space-around; }  /* Con espacio alrededor */
+  .evenly   { justify-content: space-evenly; }  /* Espaciado uniforme */
+
+  .flex div {
+    background: #ff2e63; padding: 12px 18px; color: white;
+  }
+&lt;/style&gt;
+
+&lt;div class="flex start"&gt;&lt;div&gt;1&lt;/div&gt;&lt;div&gt;2&lt;/div&gt;&lt;div&gt;3&lt;/div&gt;&lt;/div&gt;
+&lt;div class="flex center"&gt;&lt;div&gt;1&lt;/div&gt;&lt;div&gt;2&lt;/div&gt;&lt;div&gt;3&lt;/div&gt;&lt;/div&gt;
+&lt;div class="flex between"&gt;&lt;div&gt;1&lt;/div&gt;&lt;div&gt;2&lt;/div&gt;&lt;div&gt;3&lt;/div&gt;&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Recuerda: <code>justify-content</code> actúa en el eje principal. Si <code>flex-direction: column</code>, ese eje es vertical.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">4</span> align-items: alinear verticalmente</h3>
+    <p>Alinea los elementos en el eje cruzado (vertical en fila). Perfecto para centrar verticalmente.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .contenedor {
+    display: flex;
+    align-items: center;  /* Centrado vertical */
+    height: 200px;
+    background: #1a1a2e;
+  }
+  .contenedor div {
+    background: #ffd93d;
+    padding: 20px;
+    color: #000;
+  }
+&lt;/style&gt;
+
+&lt;div class="contenedor"&gt;
+  &lt;div&gt;Centrado vertical&lt;/div&gt;
+  &lt;div&gt;Y todos alignados&lt;/div&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Para centrar PERFECTAMENTE (horizontal + vertical): <code>display:flex; justify-content:center; align-items:center;</code>.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">5</span> flex-wrap: que los elementos bajen</h3>
+    <p>Por defecto, flexbox intenta meter todo en una fila. Con <code>wrap</code> los elementos que no caben bajan a la siguiente línea.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .contenedor {
+    display: flex;
+    flex-wrap: wrap;  /* Permite saltar de línea */
+    gap: 10px;
+  }
+  .contenedor div {
+    background: #00d9ff;
+    padding: 20px;
+    width: 150px;
+  }
+&lt;/style&gt;
+
+&lt;div class="contenedor"&gt;
+  &lt;div&gt;1&lt;/div&gt;&lt;div&gt;2&lt;/div&gt;&lt;div&gt;3&lt;/div&gt;&lt;div&gt;4&lt;/div&gt;
+  &lt;div&gt;5&lt;/div&gt;&lt;div&gt;6&lt;/div&gt;&lt;div&gt;7&lt;/div&gt;&lt;div&gt;8&lt;/div&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Sin <code>flex-wrap: wrap</code>, los elementos se encogen hasta caber. Con wrap, mantienen su tamaño y bajan.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">6</span> gap: separación entre elementos</h3>
+    <p>La propiedad más moderna y cómoda para separar elementos flex (y grid). Sustituye a los <code>margin</code> manuales.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .contenedor {
+    display: flex;
+    gap: 16px;  /* Separación uniforme entre hijos */
+  }
+  /* También se puede separar por dirección */
+  .contenedor2 {
+    display: flex;
+    flex-direction: column;
+    row-gap: 12px;
+    column-gap: 4px;
+  }
+&lt;/style&gt;
+
+&lt;div class="contenedor"&gt;
+  &lt;div&gt;A&lt;/div&gt;&lt;div&gt;B&lt;/div&gt;&lt;div&gt;C&lt;/div&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip"><code>gap</code> NO añade espacio en los bordes externos, solo entre elementos. ¡Limpio y consistente!</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">7</span> flex-grow y flex-shrink: cómo crecen/encogen</h3>
+    <p><code>flex-grow</code> controla cuánto crece un elemento. <code>flex-shrink</code> cuánto se encoge. 0 = no cambia.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .contenedor {
+    display: flex;
+    width: 100%;
+  }
+  .normal { flex-grow: 0; background: #00d9ff; }
+  .crece  { flex-grow: 1; background: #ff2e63; }  /* Ocupa el espacio sobrante */
+  .crece2 { flex-grow: 2; background: #ffd93d; }  /* El doble que .crece */
+
+  .contenedor div {
+    padding: 20px; text-align: center; color: #000;
+  }
+&lt;/style&gt;
+
+&lt;div class="contenedor"&gt;
+  &lt;div class="normal"&gt;Fijo&lt;/div&gt;
+  &lt;div class="crece"&gt;Crece 1&lt;/div&gt;
+  &lt;div class="crece2"&gt;Crece 2&lt;/div&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">El atajo <code>flex: 1</code> equivale a <code>flex-grow: 1; flex-shrink: 1; flex-basis: 0%</code>.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">8</span> order: cambiar el orden visual</h3>
+    <p>Cambia el orden en que se muestran los elementos sin tocar el HTML. Útil para responsive (mover el menú de sitio en móvil).</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .contenedor { display: flex; }
+  .primero { order: 3; background: #ff2e63; }  /* Aparece al final */
+  .segundo { order: 1; background: #00d9ff; }  /* Aparece primero */
+  .tercero { order: 2; background: #ffd93d; }  /* Aparece segundo */
+
+  .contenedor div { padding: 15px; color: #000; }
+&lt;/style&gt;
+
+&lt;div class="contenedor"&gt;
+  &lt;div class="primero"&gt;A (HTML primero, visual último)&lt;/div&gt;
+  &lt;div class="segundo"&gt;B (HTML segundo, visual primero)&lt;/div&gt;
+  &lt;div class="tercero"&gt;C (HTML tercero, visual segundo)&lt;/div&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">El orden por defecto es 0. Los negativos <code>-1</code> aparecen antes que los ceros.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">9</span> Navbar horizontal con flexbox</h3>
+    <p>El caso de uso más clásico: una barra de navegación con logo a la izquierda y enlaces a la derecha.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;style&gt;
+  nav {
+    display: flex;
+    justify-content: space-between;  /* Logo izq, enlaces der */
+    align-items: center;  /* Centrado vertical */
+    padding: 16px 24px;
+    background: #1a1a2e;
+    color: white;
+  }
+  nav .logo { font-weight: bold; color: #00d9ff; }
+  nav ul {
+    display: flex;
+    gap: 20px;  /* Separación entre enlaces */
+    list-style: none;
+    margin: 0;
+  }
+  nav a { color: white; text-decoration: none; }
+  nav a:hover { color: #00d9ff; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;nav&gt;
+    &lt;div class="logo"&gt;Mi marca&lt;/div&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href="#"&gt;Inicio&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href="#"&gt;Servicios&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href="#"&gt;Contacto&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/nav&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+    </div>
+    <div class="tip"><code>justify-content: space-between</code> empuja los extremos a los bordes. ¡La clave del navbar!</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">10</span> Card horizontal completa</h3>
+    <p>Tarjeta con imagen a un lado y texto al otro. Patrón super común.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;style&gt;
+  .card {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    background: #1e293b;
+    border-radius: 12px;
+    max-width: 500px;
+    color: white;
+  }
+  .card img {
+    width: 100px;
+    height: 100px;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+  .card .contenido {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;  /* Distribuye vertical */
+  }
+  .card h3 { margin: 0; color: #00d9ff; }
+  .card p { margin: 0; color: #94a3b8; font-size: 14px; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class="card"&gt;
+    &lt;img src="https://picsum.photos/100" alt="Avatar"&gt;
+    &lt;div class="contenido"&gt;
+      &lt;div&gt;
+        &lt;h3&gt;Ana García&lt;/h3&gt;
+        &lt;p&gt;Diseñadora frontend con 5 años de experiencia en proyectos creativos.&lt;/p&gt;
+      &lt;/div&gt;
+      &lt;button&gt;Ver perfil&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+    </div>
+    <div class="tip">Combinar <code>display: flex</code> en el padre con <code>flex-direction: column</code> en el hijo anidado es lo más potente de Flexbox.</div>
+  </div>
+  </section>
+
+
+  <section id="grid">
+    <span class="badge yellow">Tema 4 · CSS Grid</span>
+    <h2 class="section-title"><span class="emoji-big">🔲</span> CSS Grid</h2>
+    <div class="intro-text">Grid es el sistema más potente de CSS: maqueta en <strong>dos dimensiones</strong> (filas Y columnas). Ideal para layouts completos de página. Si necesitas alinear algo en una sola dirección, usa Flexbox.</div>
+
+  <div class="ejemplo">
+    <h3><span class="num">1</span> display: grid básico</h3>
+    <p>Convierte un contenedor en cuadrícula. Los hijos se colocan en celdas automáticamente.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .grid {
+    display: grid;
+    background: #0f172a;
+    padding: 10px;
+  }
+  .grid div {
+    background: #ffd93d;
+    color: #000;
+    padding: 20px;
+    text-align: center;
+  }
+&lt;/style&gt;
+
+&lt;div class="grid"&gt;
+  &lt;div&gt;1&lt;/div&gt;&lt;div&gt;2&lt;/div&gt;&lt;div&gt;3&lt;/div&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Por defecto, los elementos se apilan en una sola columna. Para tener varias columnas, usa <code>grid-template-columns</code>.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">2</span> grid-template-columns: definir columnas</h3>
+    <p>Define cuántas columnas y de qué tamaño. La unidad <code>fr</code> reparte el espacio disponible.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;  /* 3 columnas iguales */
+    gap: 10px;
+  }
+  .grid div {
+    background: #00d9ff;
+    padding: 20px;
+    color: #000;
+  }
+&lt;/style&gt;
+
+&lt;div class="grid"&gt;
+  &lt;div&gt;1&lt;/div&gt;&lt;div&gt;2&lt;/div&gt;&lt;div&gt;3&lt;/div&gt;
+  &lt;div&gt;4&lt;/div&gt;&lt;div&gt;5&lt;/div&gt;&lt;div&gt;6&lt;/div&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip"><code>1fr 2fr 1fr</code> = la columna del centro es el doble de ancha. <code>fr</code> = fracción del espacio.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">3</span> grid-template-rows: definir filas</h3>
+    <p>Define cuántas filas y de qué altura. Se suele usar con <code>auto</code> para que se adapten al contenido.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 100px auto 60px;  /* 3 filas: fija, auto, fija */
+    gap: 10px;
+    height: 300px;
+  }
+  .grid div {
+    background: #ff2e63;
+    color: white;
+    padding: 10px;
+  }
+&lt;/style&gt;
+
+&lt;div class="grid"&gt;
+  &lt;div&gt;Header 100px&lt;/div&gt;&lt;div&gt;Header 100px&lt;/div&gt;
+  &lt;div&gt;Auto (crece)&lt;/div&gt;&lt;div&gt;Auto&lt;/div&gt;
+  &lt;div&gt;Footer 60px&lt;/div&gt;&lt;div&gt;Footer 60px&lt;/div&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Si no defines filas, Grid las crea automáticamente según el contenido (grid implícito).</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">4</span> gap en grid: separación</h3>
+    <p>Igual que en flexbox, separa las celdas. Puedes dar valores diferentes a filas y columnas.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;  /* Igual en ambos */
+    /* o: gap: 20px 10px; (filas columnas) */
+  }
+  .grid div {
+    background: #9d4edd;
+    padding: 20px;
+    color: white;
+  }
+&lt;/style&gt;
+
+&lt;div class="grid"&gt;
+  &lt;div&gt;1&lt;/div&gt;&lt;div&gt;2&lt;/div&gt;&lt;div&gt;3&lt;/div&gt;
+  &lt;div&gt;4&lt;/div&gt;&lt;div&gt;5&lt;/div&gt;&lt;div&gt;6&lt;/div&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Antes se usaban <code>row-gap</code> y <code>column-gap</code> por separado. Ahora <code>gap</code> acepta uno o dos valores.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">5</span> grid-template-areas: dibujar el layout</h3>
+    <p>La magia de Grid: 'dibujas' el layout con nombres. Cada zona se asigna después con <code>grid-area</code>.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .layout {
+    display: grid;
+    grid-template-areas:
+      "header header"
+      "sidebar main"
+      "footer footer";
+    grid-template-columns: 200px 1fr;
+    grid-template-rows: 60px 1fr 40px;
+    gap: 10px;
+    height: 300px;
+  }
+  .header  { grid-area: header;  background: #00d9ff; }
+  .sidebar { grid-area: sidebar; background: #ff2e63; }
+  .main    { grid-area: main;    background: #ffd93d; }
+  .footer  { grid-area: footer;  background: #6bcb77; }
+&lt;/style&gt;
+
+&lt;div class="layout"&gt;
+  &lt;div class="header"&gt;Header&lt;/div&gt;
+  &lt;div class="sidebar"&gt;Sidebar&lt;/div&gt;
+  &lt;div class="main"&gt;Contenido&lt;/div&gt;
+  &lt;div class="footer"&gt;Footer&lt;/div&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Usa un punto <code>.</code> para celdas vacías: <code>"header header" "sidebar ."</code>.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">6</span> minmax() y repeat(): columnas flexibles</h3>
+    <p><code>minmax(200px, 1fr)</code> = mínimo 200px, máximo el espacio disponible. <code>repeat(3, 1fr)</code> = tres columnas de 1fr.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .grid {
+    display: grid;
+    /* 3 columnas, cada una mínimo 150px y máximo 1fr */
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
+    gap: 10px;
+  }
+  .grid div {
+    background: #00d9ff;
+    padding: 20px;
+    color: #000;
+    text-align: center;
+  }
+&lt;/style&gt;
+
+&lt;div class="grid"&gt;
+  &lt;div&gt;1&lt;/div&gt;&lt;div&gt;2&lt;/div&gt;&lt;div&gt;3&lt;/div&gt;
+  &lt;div&gt;4&lt;/div&gt;&lt;div&gt;5&lt;/div&gt;&lt;div&gt;6&lt;/div&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip"><code>repeat()</code> es solo un atajo. <code>repeat(3, 1fr)</code> = <code>1fr 1fr 1fr</code>.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">7</span> auto-fit: responsive sin media queries</h3>
+    <p><code>auto-fit</code> crea tantas columnas como quepan automáticamente. Combinado con <code>minmax()</code> hace diseños responsive sin tocar nada.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .grid {
+    display: grid;
+    /* Tantas columnas como quepan, mínimo 200px cada una */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+  }
+  .grid div {
+    background: #ff2e63;
+    padding: 20px;
+    color: white;
+    text-align: center;
+  }
+&lt;/style&gt;
+
+&lt;div class="grid"&gt;
+  &lt;div&gt;1&lt;/div&gt;&lt;div&gt;2&lt;/div&gt;&lt;div&gt;3&lt;/div&gt;
+  &lt;div&gt;4&lt;/div&gt;&lt;div&gt;5&lt;/div&gt;&lt;div&gt;6&lt;/div&gt;
+  &lt;div&gt;7&lt;/div&gt;&lt;div&gt;8&lt;/div&gt;&lt;div&gt;9&lt;/div&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Redimensiona la ventana: las columnas se reorganizan solas. <code>auto-fit</code> estira las visibles; <code>auto-fill</code> deja vacías.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">8</span> Posicionar con grid-column y grid-row</h3>
+    <p>Posiciona un elemento en celdas específicas usando números de línea.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .item-a { grid-column: 1 / 3; background: #00d9ff; }  /* Ocupa 2 columnas */
+  .item-b { grid-column: 3 / 4; grid-row: 1 / 3; background: #ff2e63; }  /* Ocupa 2 filas */
+  .item-c { grid-column: 1 / 3; background: #ffd93d; }
+
+  .grid div { padding: 20px; color: #000; }
+&lt;/style&gt;
+
+&lt;div class="grid"&gt;
+  &lt;div class="item-a"&gt;A: columnas 1-3&lt;/div&gt;
+  &lt;div class="item-b"&gt;B: fila 1-3&lt;/div&gt;
+  &lt;div class="item-c"&gt;C: columnas 1-3&lt;/div&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">El atajo <code>span 2</code> ocupa 2 columnas desde donde está: <code>grid-column: span 2;</code>.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">9</span> Layout completo de página con grid</h3>
+    <p>La plantilla más usada del mundo web: header, sidebar, main, footer en pocas líneas.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;style&gt;
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+  }
+  .layout {
+    display: grid;
+    grid-template-areas:
+      "header header"
+      "sidebar main"
+      "footer footer";
+    grid-template-columns: 220px 1fr;
+    grid-template-rows: 60px 1fr 40px;
+    gap: 10px;
+    min-height: 100vh;
+    padding: 10px;
+    background: #0f172a;
+    color: white;
+  }
+  .header  { grid-area: header;  background: #1e293b; display: flex; align-items: center; padding: 0 16px; }
+  .sidebar { grid-area: sidebar; background: #1e293b; padding: 16px; }
+  .main    { grid-area: main;    background: #1e293b; padding: 16px; }
+  .footer  { grid-area: footer;  background: #1e293b; display: flex; align-items: center; justify-content: center; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class="layout"&gt;
+    &lt;header class="header"&gt;📊 Mi Dashboard&lt;/header&gt;
+    &lt;aside class="sidebar"&gt;
+      &lt;h3&gt;Menú&lt;/h3&gt;
+      &lt;ul style="list-style:none; padding:0;"&gt;
+        &lt;li&gt;Inicio&lt;/li&gt;
+        &lt;li&gt;Datos&lt;/li&gt;
+        &lt;li&gt;Config&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/aside&gt;
+    &lt;main class="main"&gt;
+      &lt;h2&gt;Contenido&lt;/h2&gt;
+      &lt;p&gt;Aquí va el contenido principal.&lt;/p&gt;
+    &lt;/main&gt;
+    &lt;footer class="footer"&gt;© 2025&lt;/footer&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+    </div>
+    <div class="tip">Esta estructura funciona para 90% de las webs: blogs, dashboards, paneles admin. ¡La base!</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">10</span> Galería responsive con grid</h3>
+    <p>La galería perfecta: columnas automáticas, sin media queries, con hover.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;style&gt;
+  .galeria {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    padding: 20px;
+  }
+  .galeria img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: transform 0.3s;
+  }
+  .galeria img:hover { transform: scale(1.04); }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class="galeria"&gt;
+    &lt;img src="https://picsum.photos/200" alt="Foto 1"&gt;
+    &lt;img src="https://picsum.photos/201" alt="Foto 2"&gt;
+    &lt;img src="https://picsum.photos/202" alt="Foto 3"&gt;
+    &lt;img src="https://picsum.photos/203" alt="Foto 4"&gt;
+    &lt;img src="https://picsum.photos/204" alt="Foto 5"&gt;
+    &lt;img src="https://picsum.photos/205" alt="Foto 6"&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+    </div>
+    <div class="tip">Esta es la forma moderna y recomendada de hacer galerías. Se adapta a móvil, tablet y desktop sin una sola línea más.</div>
+  </div>
+  </section>
+
+
+  <section id="responsive">
+    <span class="badge green">Tema 5 · Diseño Responsive</span>
+    <h2 class="section-title"><span class="emoji-big">📱</span> Diseño Responsive</h2>
+    <div class="intro-text">Responsive significa que la página <strong>se adapta sola</strong> al tamaño de la pantalla: móvil, tablet, escritorio. La clave está en: meta viewport, unidades relativas (%, vw, vh, rem) y media queries.</div>
+
+  <div class="ejemplo">
+    <h3><span class="num">1</span> Meta viewport (obligatorio)</h3>
+    <p>Sin esta línea, el móvil muestra la web 'escalada' y se ve horrible. Debe ir siempre en el <code>&lt;head&gt;</code>.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html lang="es"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;!-- La línea mágica --&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;title&gt;Mi web responsive&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Se ve bien en móvil&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+    </div>
+    <div class="tip">Sin esta etiqueta, los navegadores móviles simulan un ancho de 980px y la web se ve minúscula.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">2</span> Media queries básicas</h3>
+    <p>Aplica estilos diferentes según el ancho de la pantalla. El símbolo <code>@media</code> seguido de una condición.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  /* Estilo base (móvil) */
+  body {
+    background: white;
+    font-size: 16px;
+  }
+
+  /* A partir de 768px (tablet y superior) */
+  @media (min-width: 768px) {
+    body {
+      background: lightblue;
+      font-size: 18px;
+    }
+  }
+
+  /* A partir de 1024px (desktop) */
+  @media (min-width: 1024px) {
+    body {
+      background: lightgreen;
+      font-size: 20px;
+    }
+  }
+&lt;/style&gt;</textarea>
+    </div>
+    <div class="tip">Mobile-first: escribe primero el estilo de móvil y luego añade <code>min-width</code> para pantallas grandes. Más eficiente.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">3</span> Mobile-first approach</h3>
+    <p>Diseñar primero para móvil y luego ampliar. Más fácil de optimizar y mejora el rendimiento en móviles.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  /* Móvil por defecto: una columna */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  /* Tablet: 2 columnas */
+  @media (min-width: 600px) {
+    .grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* Desktop: 3 columnas */
+  @media (min-width: 900px) {
+    .grid { grid-template-columns: repeat(3, 1fr); }
+  }
+&lt;/style&gt;
+
+&lt;div class="grid"&gt;
+  &lt;div&gt;A&lt;/div&gt;&lt;div&gt;B&lt;/div&gt;&lt;div&gt;C&lt;/div&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Empieza siempre con la pantalla más pequeña. Los humanos redimensionamos ventanas pero el móvil no crece.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">4</span> Breakpoints comunes</h3>
+    <p>Los 'puntos de corte' estándar de la industria. Mantente cerca de estos valores para consistencia.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  /* Móvil pequeño: 0-479px (por defecto, sin media query) */
+  /* Móvil grande: 480-767px */
+  @media (min-width: 480px) { /* ... */ }
+
+  /* Tablet: 768-1023px */
+  @media (min-width: 768px) { /* ... */ }
+
+  /* Desktop: 1024-1439px */
+  @media (min-width: 1024px) { /* ... */ }
+
+  /* Desktop grande: 1440px+ */
+  @media (min-width: 1440px) { /* ... */ }
+&lt;/style&gt;</textarea>
+    </div>
+    <div class="tip">No uses demasiados breakpoints. 2-3 puntos suelen ser suficientes para la mayoría de webs.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">5</span> Unidades relativas: vw y vh</h3>
+    <p><code>vw</code> = 1% del ancho de la ventana. <code>vh</code> = 1% de la altura. Perfectas para secciones a pantalla completa.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .hero {
+    /* Ocupa el 100% de la altura de la ventana */
+    height: 100vh;
+
+    /* Ocupa el 100% del ancho */
+    width: 100vw;
+
+    /* Tipografía que escala con el ancho */
+    font-size: 5vw;
+
+    background: linear-gradient(135deg, #00d9ff, #ff2e63);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+&lt;/style&gt;
+
+&lt;div class="hero"&gt;
+  ¡Hola mundo!
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip"><code>100vh</code> es la altura completa. <code>80vh</code> = 80% de la altura. Útil para heroes y modales.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">6</span> clamp() para responsive sin media queries</h3>
+    <p>El truco moderno: valores que escalan solos entre un mínimo y un máximo. Una línea sustituye a 3 breakpoints.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  h1 {
+    /* Nunca menos de 1.5rem, nunca más de 3rem */
+    font-size: clamp(1.5rem, 5vw, 3rem);
+  }
+  .container {
+    /* Ancho responsive */
+    width: clamp(280px, 90%, 1200px);
+    margin: 0 auto;
+  }
+  p {
+    /* Padding que crece con la pantalla */
+    padding: clamp(1rem, 4vw, 3rem);
+  }
+&lt;/style&gt;</textarea>
+    </div>
+    <div class="tip">El valor del medio (<code>5vw</code>) es el preferido. <code>clamp</code> lo limita entre el mínimo y el máximo.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">7</span> Imágenes responsive</h3>
+    <p>La regla de oro: las imágenes NUNCA deben salirse de su contenedor. Una línea de CSS y listo.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  img {
+    max-width: 100%;  /* Nunca más ancha que el contenedor */
+    height: auto;     /* Mantiene proporción */
+    display: block;   /* Quita el gap inferior */
+  }
+  .galeria {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+  }
+&lt;/style&gt;
+
+&lt;div class="galeria"&gt;
+  &lt;img src="foto1.jpg" alt=""&gt;
+  &lt;img src="foto2.jpg" alt=""&gt;
+  &lt;img src="foto3.jpg" alt=""&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip"><code>object-fit: cover</code> recorta la imagen sin deformarla cuando tiene un tamaño fijo.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">8</span> Ocultar elementos por pantalla</h3>
+    <p>A veces quieres mostrar algo solo en móvil o solo en desktop. Usa <code>display: none</code> dentro de un media query.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  /* Visible solo en móvil (se oculta a partir de 768px) */
+  .solo-movil { display: block; }
+  @media (min-width: 768px) {
+    .solo-movil { display: none; }
+  }
+
+  /* Oculto en móvil, visible a partir de 768px */
+  .solo-desktop { display: none; }
+  @media (min-width: 768px) {
+    .solo-desktop { display: block; }
+  }
+&lt;/style&gt;
+
+&lt;nav&gt;
+  &lt;a href="#" class="solo-movil"&gt;☰ Menú&lt;/a&gt;
+  &lt;a href="#" class="solo-desktop"&gt;Inicio&lt;/a&gt;
+  &lt;a href="#" class="solo-desktop"&gt;Servicios&lt;/a&gt;
+  &lt;a href="#" class="solo-desktop"&gt;Contacto&lt;/a&gt;
+&lt;/nav&gt;</textarea>
+    </div>
+    <div class="tip">También existe <code>visibility: hidden</code> que oculta pero mantiene el espacio. <code>display: none</code> quita el elemento por completo.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">9</span> Grid responsive sin media queries</h3>
+    <p>La técnica más moderna: una sola línea que se adapta sola. <code>auto-fit</code> + <code>minmax</code>.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .cards {
+    /* En móvil: 1 columna. En tablet: 2. En desktop: 3-4. ¡Todo automático! */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+  }
+  .cards div {
+    background: #1e293b;
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+  }
+&lt;/style&gt;
+
+&lt;div class="cards"&gt;
+  &lt;div&gt;Tarjeta 1&lt;/div&gt;
+  &lt;div&gt;Tarjeta 2&lt;/div&gt;
+  &lt;div&gt;Tarjeta 3&lt;/div&gt;
+  &lt;div&gt;Tarjeta 4&lt;/div&gt;
+  &lt;div&gt;Tarjeta 5&lt;/div&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Redimensiona la ventana: las columnas se ajustan solas. Es la forma más limpia de hacer layouts responsive.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">10</span> Layout responsive completo</h3>
+    <p>Junta todo: meta viewport, mobile-first, grid y media queries.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html lang="es"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;title&gt;Web responsive&lt;/title&gt;
+  &lt;style&gt;
+    * { box-sizing: border-box; margin: 0; }
+    body { font-family: system-ui, sans-serif; padding: 16px; }
+
+    /* Móvil: todo apilado */
+    .layout {
+      display: grid;
+      gap: 16px;
+      grid-template-areas: "header" "nav" "main" "footer";
+    }
+    .header { grid-area: header; background: #00d9ff; padding: 16px; }
+    .nav    { grid-area: nav; background: #ff2e63; padding: 16px; color: white; }
+    .main   { grid-area: main; background: #1e293b; color: white; padding: 16px; }
+    .footer { grid-area: footer; background: #94a3b8; padding: 16px; text-align: center; }
+
+    /* Tablet (600px+): sidebar a un lado */
+    @media (min-width: 600px) {
+      .layout {
+        grid-template-areas:
+          "header header"
+          "nav main"
+          "footer footer";
+        grid-template-columns: 180px 1fr;
+      }
+    }
+
+    /* Desktop (900px+): más espacioso */
+    @media (min-width: 900px) {
+      .layout { max-width: 1100px; margin: 0 auto; }
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class="layout"&gt;
+    &lt;header class="header"&gt;Mi Web&lt;/header&gt;
+    &lt;nav class="nav"&gt;Inicio · Blog · Contacto&lt;/nav&gt;
+    &lt;main class="main"&gt;
+      &lt;h1&gt;Contenido&lt;/h1&gt;
+      &lt;p&gt;Redimensiona la ventana para ver el cambio.&lt;/p&gt;
+    &lt;/main&gt;
+    &lt;footer class="footer"&gt;© 2025&lt;/footer&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+    </div>
+    <div class="tip">Este patrón (móvil apilado → tablet con sidebar → desktop centrado) es el más usado en la web actual.</div>
+  </div>
+  </section>
+
+
+  <section id="tipografia">
+    <span class="badge cyan">Tema 6 · Tipografía</span>
+    <h2 class="section-title"><span class="emoji-big">🔤</span> Tipografía</h2>
+    <div class="intro-text">La tipografía es el 95% del diseño web. Texto legible = mejor experiencia. Claves: fuente adecuada, tamaño suficiente, alto de línea, contraste y jerarquía visual clara.</div>
+
+  <div class="ejemplo">
+    <h3><span class="num">1</span> font-family con fallback</h3>
+    <p>Indica varias fuentes por si una no carga. La última suele ser una genérica como <code>sans-serif</code>.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  body {
+    /* Intenta system-ui, si no, -apple-system, si no, sans-serif genérico */
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  code {
+    /* Para código: monoespaciada */
+    font-family: ui-monospace, "Cascadia Code", "Fira Code", Consolas, monospace;
+  }
+&lt;/style&gt;</textarea>
+    </div>
+    <div class="tip">Tipos de fuente genéricos: <code>serif</code> (con patines), <code>sans-serif</code> (sin patines), <code>monospace</code> (ancho fijo), <code>cursive</code> (caligráfica).</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">2</span> Google Fonts en tu HTML</h3>
+    <p>Incluye fuentes bonitas en 2 pasos: enlazas el CSS de Google y lo usas en tu CSS.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;!-- 1. Enlaza la fuente (en el head) --&gt;
+  &lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;
+  &lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"&gt;
+  &lt;style&gt;
+    body { font-family: 'Inter', sans-serif; }
+    h1 { font-family: 'Playfair Display', serif; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Título elegante&lt;/h1&gt;
+  &lt;p&gt;Texto cómodo de leer.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+    </div>
+    <div class="tip">Usa <code>display=swap</code> para que el texto aparezca con la fuente de respaldo mientras carga la premium.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">3</span> rem: tamaño relativo a la raíz</h3>
+    <p><code>rem</code> se refiere al tamaño base del documento. Más consistente que <code>px</code> para responsive.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  html {
+    font-size: 16px;  /* Base: 1rem = 16px */
+  }
+  body {
+    font-size: 1rem;     /* 16px */
+  }
+  h1 {
+    font-size: 2rem;     /* 32px */
+  }
+  small {
+    font-size: 0.875rem; /* 14px */
+  }
+&lt;/style&gt;</textarea>
+    </div>
+    <div class="tip"><code>em</code> es relativo al elemento padre. <code>rem</code> es relativo a la raíz (<code>html</code>). Usa <code>rem</code> para no liarte con herencias.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">4</span> line-height: legibilidad</h3>
+    <p>El alto de línea controla el espacio entre líneas de texto. 1.5 a 1.7 es lo recomendado para cuerpo de texto.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .compacto  { line-height: 1.2; }  /* Muy junto */
+  .normal    { line-height: 1.6; }  /* Recomendado */
+  .espacioso { line-height: 2;   }  /* Muy separado */
+
+  p {
+    font-size: 16px;
+    max-width: 60ch;  /* Limita el ancho de línea */
+  }
+&lt;/style&gt;
+
+&lt;p class="compacto"&gt;Líneas muy juntas, cansa la vista al leer párrafos largos.&lt;/p&gt;
+&lt;p class="normal"&gt;Line-height 1.6, lo recomendado para lectura cómoda en pantalla.&lt;/p&gt;</textarea>
+    </div>
+    <div class="tip">El ancho de línea ideal es 50-75 caracteres. Usa <code>max-width: 65ch</code> para limitarlo.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">5</span> letter-spacing y word-spacing</h3>
+    <p>Ajusta el espacio entre letras y entre palabras. Útil para títulos y versalitas.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  h1 {
+    /* Reduce el espacio para títulos grandes */
+    letter-spacing: -0.02em;
+  }
+  .versalita {
+    /* Aumenta para mayúsculas pequeñas */
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .justificado {
+    /* Espacio extra entre palabras */
+    word-spacing: 0.2em;
+  }
+&lt;/style&gt;
+
+&lt;h1&gt;Título condensado&lt;/h1&gt;
+&lt;p class="versalita"&gt;Texto en versalita&lt;/p&gt;</textarea>
+    </div>
+    <div class="tip">Para texto normal, deja el letter-spacing por defecto. Solo ajústalo en títulos grandes o versalitas.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">6</span> font-weight y font-style</h3>
+    <p>Controla el grosor (negrita) y el estilo (cursiva). Los grosores comunes son 400 (normal) y 700 (negrita).</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .normal    { font-weight: 400; }
+  .medio     { font-weight: 500; }
+  .negrita   { font-weight: 700; }
+  .extra     { font-weight: 900; }  /* Negritísima */
+
+  .cursiva   { font-style: italic; }
+  .normal2   { font-style: normal; }
+&lt;/style&gt;
+
+&lt;p class="normal"&gt;Texto normal&lt;/p&gt;
+&lt;p class="negrita"&gt;Texto en negrita&lt;/p&gt;
+&lt;p class="cursiva"&gt;Texto en cursiva&lt;/p&gt;</textarea>
+    </div>
+    <div class="tip">No todas las fuentes tienen todos los grosores. Carga solo los pesos que necesites (ej. 400 y 700) en Google Fonts.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">7</span> text-transform: mayúsculas y más</h3>
+    <p>Cambia el texto visual sin tocar el HTML. Útil para etiquetas, botones y secciones.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .mayusculas    { text-transform: uppercase; }   /* TODO MAYÚSCULAS */
+  .minusculas    { text-transform: lowercase; }   /* todo minúsculas */
+  .capitalizada  { text-transform: capitalize; }  /* Primera Letra Mayúscula */
+
+  .badge {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 12px;
+    font-weight: 700;
+    color: #00d9ff;
+  }
+&lt;/style&gt;
+
+&lt;p class="mayusculas"&gt;hola mundo&lt;/p&gt;
+&lt;span class="badge"&gt;Nuevo&lt;/span&gt;</textarea>
+    </div>
+    <div class="tip"><code>text-transform</code> no cambia el HTML, solo lo visual. Los lectores de pantalla siguen leyendo el texto original.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">8</span> Tipografía responsive con clamp()</h3>
+    <p>El truco moderno: tamaños que escalan solos con el ancho de la pantalla. Una línea sustituye a varios breakpoints.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  h1 { font-size: clamp(2rem, 5vw, 4rem); }   /* Mín 2rem, máx 4rem */
+  h2 { font-size: clamp(1.5rem, 4vw, 3rem); }
+  p  { font-size: clamp(1rem, 2vw, 1.25rem); }
+
+  /* En móvil: 2rem. En tablet: ~3rem. En desktop: 4rem */
+&lt;/style&gt;
+
+&lt;h1&gt;Título que crece con la pantalla&lt;/h1&gt;
+&lt;p&gt;Párrafo también.&lt;/p&gt;</textarea>
+    </div>
+    <div class="tip">El valor medio (<code>5vw</code>) es el preferido. <code>clamp</code> lo limita entre el mínimo y el máximo.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">9</span> text-align y text-decoration</h3>
+    <p>Alineación horizontal y decoraciones (subrayado, tachado).</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .izquierda   { text-align: left; }
+  .centro      { text-align: center; }
+  .derecha     { text-align: right; }
+  .justificado { text-align: justify; }
+
+  a { text-decoration: none; color: #00d9ff; }
+  a:hover { text-decoration: underline; }
+
+  .tachado  { text-decoration: line-through; }
+  .subrayado { text-decoration: underline; }
+&lt;/style&gt;
+
+&lt;p class="centro"&gt;Centrado&lt;/p&gt;
+&lt;a href="#"&gt;Enlace sin subrayado, con subrayado al pasar el ratón&lt;/a&gt;</textarea>
+    </div>
+    <div class="tip">Quitar el subrayado a los enlaces puede confundir. Si lo haces, da otra pista visual (color, negrita, hover).</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">10</span> Jerarquía tipográfica completa</h3>
+    <p>Sistema tipográfico completo: títulos, subtítulos, cuerpo, captions. La base de un buen diseño.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  :root {
+    --fuente: system-ui, sans-serif;
+    --texto-base: 1rem;
+    --color-texto: #1a1a1a;
+    --color-muted: #64748b;
+  }
+
+  body {
+    font-family: var(--fuente);
+    font-size: var(--texto-base);
+    line-height: 1.6;
+    color: var(--color-texto);
+    max-width: 70ch;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; line-height: 1.1; }
+  h2 { font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 700; margin-top: 2em; }
+  h3 { font-size: 1.25rem; font-weight: 600; margin-top: 1.5em; }
+  p  { margin: 1em 0; }
+  small { color: var(--color-muted); font-size: 0.875rem; }
+  .lead { font-size: 1.125rem; color: var(--color-muted); }
+&lt;/style&gt;
+
+&lt;h1&gt;Título principal&lt;/h1&gt;
+&lt;p class="lead"&gt;Frase de introducción, más grande y gris.&lt;/p&gt;
+&lt;h2&gt;Subtítulo de sección&lt;/h2&gt;
+&lt;p&gt;Párrafo normal de cuerpo del texto.&lt;/p&gt;
+&lt;h3&gt;Sub-sección&lt;/h3&gt;
+&lt;p&gt;Más contenido aquí.&lt;/p&gt;
+&lt;small&gt;Texto pequeño: metadatos, fechas, captions.&lt;/small&gt;</textarea>
+    </div>
+    <div class="tip">Una buena jerarquía es más importante que la fuente. Tamaños contrastados + grosores diferentes = claridad visual.</div>
+  </div>
+  </section>
+
+
+  <section id="color">
+    <span class="badge orange">Tema 7 · Color</span>
+    <h2 class="section-title"><span class="emoji-big">🎨</span> Color</h2>
+    <div class="intro-text">El color transmite estado de ánimo, jerarquía y marca. Formatos: <strong>HEX</strong> (#ff2e63), <strong>RGB</strong> (rgb(255,46,99)) y <strong>HSL</strong> (hsl(348,100%,59%)). HSL es el más intuitivo para variar tonos.</div>
+
+  <div class="ejemplo">
+    <h3><span class="num">1</span> Nombres de color vs HEX</h3>
+    <p>Los nombres (red, blue) son limitados. HEX (#ff0000) da 16 millones de colores. Cada par es un canal: rojo, verde, azul.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .rojo    { background: red;     }  /* Nombre */
+  .rojo2   { background: #ff0000; }  /* HEX */
+  .rosa    { background: #ff2e63; }  /* HEX rosa */
+  .azul    { background: #00d9ff; }  /* HEX cian */
+  .purpura { background: #9d4edd; }  /* HEX púrpura */
+  .gris    { background: #64748b; }  /* HEX gris azulado */
+
+  div { padding: 20px; color: white; margin: 4px; }
+&lt;/style&gt;
+
+&lt;div class="rojo"&gt;Red (nombre)&lt;/div&gt;
+&lt;div class="rojo2"&gt;#ff0000 (HEX)&lt;/div&gt;
+&lt;div class="rosa"&gt;#ff2e63&lt;/div&gt;
+&lt;div class="azul"&gt;#00d9ff&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Hex de 3 dígitos (<code>#f00</code>) = <code>#ff0000</code>. Es una abreviatura cuando los pares se repiten.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">2</span> RGB y RGBA (transparencia)</h3>
+    <p><code>rgb(rojo, verde, azul)</code> valores 0-255. <code>rgba</code> añade un 4º valor para la opacidad (0 = transparente, 1 = opaco).</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .opaco    { background: rgba(255, 46, 99, 1);     }  /* 100% opaco */
+  .semi     { background: rgba(255, 46, 99, 0.5);   }  /* 50% transparente */
+  .sutil    { background: rgba(255, 46, 99, 0.2);   }  /* 20% opaco */
+  .invisible{ background: rgba(255, 46, 99, 0);     }  /* 100% transparente */
+
+  div { padding: 20px; color: white; }
+&lt;/style&gt;
+
+&lt;div class="opaco"&gt;Totalmente opaco&lt;/div&gt;
+&lt;div class="semi"&gt;Semi-transparente&lt;/div&gt;
+&lt;div class="sutil"&gt;Muy sutil&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Hoy puedes escribir <code>rgb(255 46 99 / 50%)</code> (sintaxis moderna con /). Funciona igual que rgba.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">3</span> HSL: el más intuitivo</h3>
+    <p><code>hsl(matiz, saturación, luminosidad)</code>. Matiz 0-360 (rojo=0, verde=120, azul=240). Saturación y luminosidad 0-100%.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  /* HSL: 348, 100%, 59% */
+  .rojo   { background: hsl(0,   100%, 50%); }   /* Rojo puro */
+  .verde  { background: hsl(120, 100%, 50%); }   /* Verde */
+  .azul   { background: hsl(240, 100%, 50%); }   /* Azul */
+  /* Mismo matiz, variando luminosidad */
+  .claro  { background: hsl(348, 100%, 80%); }   /* Rosa claro */
+  .medio  { background: hsl(348, 100%, 50%); }   /* Rosa */
+  .oscuro { background: hsl(348, 100%, 30%); }   /* Rosa oscuro */
+
+  div { padding: 15px; color: white; }
+&lt;/style&gt;
+
+&lt;div class="rojo"&gt;H 0 (rojo)&lt;/div&gt;
+&lt;div class="verde"&gt;H 120 (verde)&lt;/div&gt;
+&lt;div class="azul"&gt;H 240 (azul)&lt;/div&gt;
+&lt;div class="oscuro"&gt;L 30%&lt;/div&gt;
+&lt;div class="medio"&gt;L 50%&lt;/div&gt;
+&lt;div class="claro"&gt;L 80%&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Para crear un color más claro o más oscuro del mismo tono, solo cambia la L (luminosidad). ¡Mucho más fácil que con RGB!</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">4</span> Color de fondo y de texto</h3>
+    <p>Las dos propiedades básicas. Asegúrate de que haya contraste suficiente.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  /* Mal: bajo contraste */
+  .malo {
+    background: yellow;
+    color: white;
+  }
+  /* Bien: alto contraste */
+  .bueno {
+    background: #1a1a2e;
+    color: #ffffff;
+  }
+  /* Fondo claro, texto oscuro */
+  .claro {
+    background: #f1f5f9;
+    color: #0f172a;
+  }
+
+  div { padding: 16px; margin: 8px 0; }
+&lt;/style&gt;
+
+&lt;div class="malo"&gt;Difícil de leer&lt;/div&gt;
+&lt;div class="bueno"&gt;Fácil de leer&lt;/div&gt;
+&lt;div class="claro"&gt;También fácil&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Regla de oro: el texto debe tener contraste 4.5:1 con el fondo (según WCAG). Prueba tu combinación en webaim.org/resources/contrastchecker/</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">5</span> Gradientes lineales</h3>
+    <p>Mezcla suave entre dos o más colores en una dirección. Una línea para crear atractivo visual.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .grad1 {
+    /* De izquierda a derecha */
+    background: linear-gradient(to right, #00d9ff, #ff2e63);
+  }
+  .grad2 {
+    /* De arriba a abajo, 3 colores */
+    background: linear-gradient(to bottom, #9d4edd, #ff2e63, #ffd93d);
+  }
+  .grad3 {
+    /* En diagonal, 45 grados */
+    background: linear-gradient(45deg, #6bcb77, #00d9ff);
+  }
+  .grad4 {
+    /* Con paradas de color */
+    background: linear-gradient(to right, #ff2e63 0%, #9d4edd 50%, #00d9ff 100%);
+  }
+
+  div { padding: 30px; color: white; margin: 8px; border-radius: 8px; }
+&lt;/style&gt;
+
+&lt;div class="grad1"&gt;Horizontal&lt;/div&gt;
+&lt;div class="grad2"&gt;Vertical 3 colores&lt;/div&gt;
+&lt;div class="grad3"&gt;Diagonal&lt;/div&gt;
+&lt;div class="grad4"&gt;Con paradas&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Prueba <code>background: linear-gradient(135deg, color1, color2)</code>. Es la diagonal más usada para tarjetas y botones modernos.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">6</span> Gradientes radiales</h3>
+    <p>El degradado sale desde un punto central hacia fuera, como una bombilla. Ideal para fondos decorativos.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .radial1 {
+    /* Desde el centro, circular */
+    background: radial-gradient(circle, #ff2e63, #1a1a2e);
+  }
+  .radial2 {
+    /* Esquina superior izquierda */
+    background: radial-gradient(circle at top left, #00d9ff, transparent);
+  }
+  .radial3 {
+    /* Elíptico */
+    background: radial-gradient(ellipse, #ffd93d, #ff2e63);
+  }
+
+  div { padding: 60px; color: white; margin: 8px; height: 120px; }
+&lt;/style&gt;
+
+&lt;div class="radial1"&gt;Centro&lt;/div&gt;
+&lt;div class="radial2"&gt;Esquina&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Usa <code>transparent</code> como color final para crear halos sutiles que se fundan con el fondo.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">7</span> opacity vs rgba: cuál usar</h3>
+    <p><code>opacity</code> afecta a todo el elemento (incluido texto e hijos). <code>rgba</code> solo al color. Cuidado con la diferencia.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  /* Mal: opacity afecta al texto también */
+  .malo {
+    background: #00d9ff;
+    opacity: 0.3;  /* ¡El texto también se vuelve transparente! */
+    color: black;
+    padding: 20px;
+  }
+
+  /* Bien: rgba solo al fondo */
+  .bueno {
+    background: rgba(0, 217, 255, 0.3);
+    color: black;
+    padding: 20px;
+  }
+&lt;/style&gt;
+
+&lt;div class="malo"&gt;Texto semi-transparente (no querías esto)&lt;/div&gt;
+&lt;div class="bueno"&gt;Texto nítido sobre fondo semi-transparente&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Casi siempre querrás <code>rgba</code>. <code>opacity</code> solo cuando quieras que TODO el elemento se desvanezca (animaciones, fade-out).</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">8</span> currentColor: heredar el color</h3>
+    <p><code>currentColor</code> usa el color de texto actual como valor. Ideal para SVGs y bordes que deben combinar con el texto.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .boton {
+    color: #00d9ff;
+    background: transparent;
+    border: 2px solid currentColor;  /* Hereda #00d9ff */
+    padding: 10px 20px;
+    border-radius: 6px;
+  }
+  .boton:hover {
+    background: currentColor;  /* Relleno del mismo color */
+    color: white;
+  }
+
+  /* SVG que hereda el color del texto */
+  .icono { color: #ff2e63; }
+  .icono svg { fill: currentColor; }
+&lt;/style&gt;
+
+&lt;button class="boton"&gt;Botón con borde que combina&lt;/button&gt;
+
+&lt;div class="icono"&gt;
+  &lt;svg width="20" height="20"&gt;&lt;circle cx="10" cy="10" r="8"/&gt;&lt;/svg&gt;
+  Texto con icono del mismo color
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Cambiar el <code>color</code> del contenedor actualiza automáticamente el borde, el SVG, etc. ¡Reusabilidad!</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">9</span> Esquema de colores con variables</h3>
+    <p>Define tu paleta una vez con variables CSS. Luego úsala en toda la web para consistencia.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  :root {
+    --primario: #00d9ff;
+    --secundario: #ff2e63;
+    --acento: #ffd93d;
+    --fondo: #0f172a;
+    --texto: #e2e8f0;
+    --muted: #94a3b8;
+    --borde: #334155;
+    --exito: #6bcb77;
+    --error: #ef4444;
+  }
+
+  body {
+    background: var(--fondo);
+    color: var(--texto);
+  }
+  button.primario {
+    background: var(--primario);
+    color: var(--fondo);
+  }
+  .alerta-error {
+    color: var(--error);
+    border-left: 4px solid var(--error);
+  }
+  .alerta-exito {
+    color: var(--exito);
+    border-left: 4px solid var(--exito);
+  }
+&lt;/style&gt;</textarea>
+    </div>
+    <div class="tip">Si decides cambiar de azul a verde, solo cambias una línea en <code>:root</code>. Toda la web se actualiza.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">10</span> Sistema completo de paleta con HSL</h3>
+    <p>Genera tonos de un mismo color usando HSL. Una sola base, 9 variaciones (50, 100, 200... 900).</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  :root {
+    /* Paleta basada en un único matiz (200 = cian) */
+    --cian-50:  hsl(200, 100%, 95%);
+    --cian-100: hsl(200, 100%, 85%);
+    --cian-300: hsl(200, 100%, 65%);
+    --cian-500: hsl(200, 100%, 50%);  /* Base */
+    --cian-700: hsl(200, 100%, 35%);
+    --cian-900: hsl(200, 100%, 15%);
+  }
+
+  body { background: var(--cian-900); padding: 20px; }
+  .tarjeta {
+    background: var(--cian-500);
+    color: var(--cian-900);
+    border: 2px solid var(--cian-300);
+    padding: 20px;
+    border-radius: 8px;
+  }
+  .tarjeta h3 { color: var(--cian-50); }
+&lt;/style&gt;
+
+&lt;div class="tarjeta"&gt;
+  &lt;h3&gt;Tarjeta con paleta coherente&lt;/h3&gt;
+  &lt;p&gt;Todos los tonos vienen del mismo matiz HSL.&lt;/p&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Herramientas como tailwindcss.com/docs/customizing-colors usan este sistema. Una base + 10 tonos = paleta profesional.</div>
+  </div>
+  </section>
+
+
+  <section id="animaciones">
+    <span class="badge purple">Tema 8 · Animaciones</span>
+    <h2 class="section-title"><span class="emoji-big">✨</span> Animaciones</h2>
+    <div class="intro-text">CSS puede animar sin JavaScript. Hay dos herramientas: <strong>transitions</strong> (cambio suave entre dos estados, ej. hover) y <strong>animations</strong> (animaciones con varios pasos vía <code>@keyframes</code>).</div>
+
+  <div class="ejemplo">
+    <h3><span class="num">1</span> transition básica</h3>
+    <p>Indica qué propiedad debe cambiar suavemente y en cuánto tiempo. Sin transition, el cambio es instantáneo.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .caja {
+    width: 100px;
+    height: 100px;
+    background: #00d9ff;
+    /* Transición suave del ancho en 0.5 segundos */
+    transition: width 0.5s ease;
+  }
+  .caja:hover {
+    width: 300px;
+  }
+&lt;/style&gt;
+
+&lt;div class="caja"&gt;&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip"><code>ease</code> = acelera al inicio y frena al final. <code>linear</code> = velocidad constante. <code>ease-in-out</code> = lento al inicio y al final.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">2</span> transition con hover (varios efectos)</h3>
+    <p>Puedes animar varias propiedades a la vez. Solo enuméralas separadas por coma.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .boton {
+    background: #ff2e63;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    /* Anima varias props a la vez */
+    transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
+  }
+  .boton:hover {
+    background: #00d9ff;
+    transform: translateY(-3px);  /* Sube 3px */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+  }
+&lt;/style&gt;
+
+&lt;button class="boton"&gt;Pasa el ratón&lt;/button&gt;</textarea>
+    </div>
+    <div class="tip">El truco <code>transform: translateY(-3px)</code> da la sensación de que el botón 'flota' al hover. Muy elegante.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">3</span> transition con timing-function avanzado</h3>
+    <p>La función de tiempo controla el ritmo de la animación. Cubic-bezier permite curvas personalizadas.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .caja {
+    width: 80px; height: 80px;
+    background: #9d4edd;
+    margin-bottom: 10px;
+  }
+  .linear    { transition: width 1s linear; }
+  .ease      { transition: width 1s ease; }
+  .ease-out  { transition: width 1s ease-out; }
+  .custom    { transition: width 1s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+
+  .caja:hover { width: 300px; }
+&lt;/style&gt;
+
+&lt;div class="caja linear"&gt;linear (constante)&lt;/div&gt;
+&lt;div class="caja ease"&gt;ease (suave)&lt;/div&gt;
+&lt;div class="caja ease-out"&gt;ease-out (frena)&lt;/div&gt;
+&lt;div class="caja custom"&gt;cubic-bezier (rebote)&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">La web cubic-bezier.com te permite diseñar tu propia curva arrastrando. Copia el valor y pégalo en tu CSS.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">4</span> @keyframes: animación con varios pasos</h3>
+    <p>Define los 'fotogramas' de la animación. Cada porcentaje es un punto de la animación.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  @keyframes cambiar-color {
+    0%   { background: #ff2e63; }
+    50%  { background: #ffd93d; }
+    100% { background: #00d9ff; }
+  }
+  .caja {
+    width: 100px; height: 100px;
+    animation: cambiar-color 3s infinite;
+  }
+&lt;/style&gt;
+
+&lt;div class="caja"&gt;&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip"><code>from</code> y <code>to</code> son atajos de <code>0%</code> y <code>100%</code>. Úsalos en animaciones de 2 pasos.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">5</span> animation con infinite</h3>
+    <p>Propiedad completa: nombre, duración, easing, delay, repeticiones, dirección, fill-mode.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  @keyframes pulso {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.2); }
+  }
+  .caja {
+    width: 100px; height: 100px;
+    background: #ff2e63;
+    border-radius: 50%;
+    /* Atajo completo: nombre duración easing delay repetición */
+    animation: pulso 1.5s ease-in-out 0s infinite;
+  }
+&lt;/style&gt;
+
+&lt;div class="caja"&gt;&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Si no quieres que sea infinita, usa un número (<code>animation: pulso 1.5s ease 0s 3</code> = 3 veces) en vez de <code>infinite</code>.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">6</span> transform: scale y rotate</h3>
+    <p>Las transformaciones son las propiedades más eficientes para animar porque no recalculan el layout.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .caja {
+    width: 80px; height: 80px;
+    background: #00d9ff;
+    margin: 20px;
+    transition: transform 0.5s ease;
+  }
+  .escalar:hover   { transform: scale(1.5); }
+  .rotar:hover     { transform: rotate(45deg); }
+  .combinado:hover { transform: scale(1.2) rotate(180deg); }
+  .inclinar:hover  { transform: skew(20deg); }
+&lt;/style&gt;
+
+&lt;div class="caja escalar"&gt;Escalar&lt;/div&gt;
+&lt;div class="caja rotar"&gt;Rotar&lt;/div&gt;
+&lt;div class="caja combinado"&gt;Combinado&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Anima SIEMPRE <code>transform</code> y <code>opacity</code> antes que <code>width</code>, <code>top</code> o <code>margin</code>. Son mucho más rápidas para el navegador.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">7</span> transform: translate (mover)</h3>
+    <p>Mueve un elemento sin afectar al resto del layout. Ideal para efectos de aparición y menús.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .caja {
+    width: 80px; height: 80px;
+    background: #ffd93d;
+    transition: transform 0.3s ease;
+  }
+  .derecha:hover  { transform: translateX(50px); }
+  .arriba:hover   { transform: translateY(-30px); }
+  .diagonal:hover { transform: translate(30px, -30px); }
+&lt;/style&gt;
+
+&lt;div class="caja derecha"&gt;→&lt;/div&gt;
+&lt;div class="caja arriba"&gt;↑&lt;/div&gt;
+&lt;div class="caja diagonal"&gt;↗&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip"><code>translate</code> NO empuja a otros elementos (no afecta el layout). Es como mover el elemento visualmente sin tocar el flujo.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">8</span> Spinner de carga (loading)</h3>
+    <p>El clásico loader giratorio. Una sola <code>@keyframes</code> con rotate infinito.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .spinner {
+    width: 40px; height: 40px;
+    border: 4px solid #334155;
+    border-top-color: #00d9ff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+&lt;/style&gt;
+
+&lt;div class="spinner"&gt;&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">El truco: solo el borde superior tiene color. Al girar, parece que se 'dibuja' el círculo.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">9</span> Hover con elevación (cards modernas)</h3>
+    <p>Efecto 'lift up' muy usado en e-commerce y blogs: la tarjeta parece elevarse al pasar el ratón.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+  }
+  .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 32px rgba(0,0,0,0.2);
+  }
+&lt;/style&gt;
+
+&lt;div class="card" style="max-width:300px;"&gt;
+  &lt;h3&gt;Tarjeta con hover&lt;/h3&gt;
+  &lt;p&gt;Pasa el ratón y verás cómo se eleva suavemente.&lt;/p&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Combinar <code>translateY</code> negativo con sombra más grande crea la ilusión de altura. Efecto premium.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">10</span> Animación de entrada (fade-in + slide)</h3>
+    <p>Animaciones que se ejecutan al cargar la página. Perfectas para secciones hero y bienvenida.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  @keyframes entrar {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .elemento-entrante {
+    animation: entrar 0.8s ease-out forwards;
+  }
+
+  /* Con delay para secuenciar */
+  .uno   { animation-delay: 0s; }
+  .dos   { animation-delay: 0.2s; }
+  .tres  { animation-delay: 0.4s; }
+
+  div {
+    padding: 16px; margin: 8px;
+    background: #1e293b; color: white;
+    border-radius: 8px;
+  }
+&lt;/style&gt;
+
+&lt;div class="elemento-entrante uno"&gt;Aparece primero&lt;/div&gt;
+&lt;div class="elemento-entrante dos"&gt;Aparece segundo&lt;/div&gt;
+&lt;div class="elemento-entrante tres"&gt;Aparece tercero&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip"><code>forwards</code> mantiene el estado final (no vuelve al inicial tras la animación). Úsalo siempre en animaciones de entrada.</div>
+  </div>
+  </section>
+
+
+  <section id="accesibilidad">
+    <span class="badge green">Tema 9 · Accesibilidad</span>
+    <h2 class="section-title"><span class="emoji-big">♿</span> Accesibilidad</h2>
+    <div class="intro-text">Accesibilidad (a11y) significa que <strong>todas las personas</strong> puedan usar tu web, incluyendo quienes usan lectores de pantalla, teclado o tienen baja visión. Buen HTML semántico + algo de CSS = 80% del trabajo.</div>
+
+  <div class="ejemplo">
+    <h3><span class="num">1</span> Atributo alt en imágenes</h3>
+    <p>El <code>alt</code> describe la imagen para quienes no la ven (lectores de pantalla, conexión lenta). Las decorativas llevan <code>alt=""</code>.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;!-- Imagen con contenido: alt descriptivo --&gt;
+&lt;img src="grafico-ventas.jpg"
+     alt="Gráfico de barras: las ventas subieron un 30% en el último trimestre"&gt;
+
+&lt;!-- Imagen decorativa: alt vacío --&gt;
+&lt;img src="separador-ondas.png" alt=""&gt;
+
+&lt;!-- ¡NUNCA! Sin alt --&gt;
+&lt;img src="foto.jpg"&gt;  &lt;!-- Mal --&gt;</textarea>
+    </div>
+    <div class="tip">El <code>alt</code> vacío (<code>alt=""</code>) le dice al lector de pantalla 'ignora esta imagen'. Diferente de no ponerlo.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">2</span> aria-label para botones sin texto</h3>
+    <p>Cuando un botón solo tiene un icono, los lectores de pantalla no saben qué hace. <code>aria-label</code> añade una etiqueta accesible.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;!-- Mal: lector dice 'botón' sin más --&gt;
+&lt;button&gt;×&lt;/button&gt;
+
+&lt;!-- Bien: lector dice 'cerrar' --&gt;
+&lt;button aria-label="Cerrar"&gt;×&lt;/button&gt;
+
+&lt;!-- Icono SVG con aria-label --&gt;
+&lt;button aria-label="Buscar"&gt;
+  &lt;svg width="20" height="20" aria-hidden="true"&gt;
+    &lt;!-- ... --&gt;
+  &lt;/svg&gt;
+&lt;/button&gt;</textarea>
+    </div>
+    <div class="tip"><code>aria-hidden="true"</code> en SVGs decorativos evita que el lector los anuncie. Solo el botón se anuncia.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">3</span> Focus visible: estilos de teclado</h3>
+    <p>Quienes navegan con teclado (Tab) necesitan ver dónde están. Usa <code>:focus-visible</code> para mostrar un contorno claro.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  button, a, input {
+    /* Quita el contorno feo por defecto */
+    outline: none;
+  }
+
+  /* Pero añade uno bonito para teclado */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible {
+    outline: 3px solid #00d9ff;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+&lt;/style&gt;
+
+&lt;button&gt;Botón 1&lt;/button&gt;
+&lt;button&gt;Botón 2&lt;/button&gt;
+&lt;a href="#"&gt;Enlace&lt;/a&gt;
+&lt;input type="text" placeholder="Escribe aquí"&gt;</textarea>
+    </div>
+    <div class="tip">Usa <code>:focus-visible</code> (no <code>:focus</code>) para que el contorno solo aparezca con teclado, no con clics de ratón.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">4</span> prefers-reduced-motion: respeta al usuario</h3>
+    <p>Algunas personas tienen sensibilidad al movimiento. Esta media query detecta su preferencia y desactiva animaciones.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .caja {
+    transition: transform 0.3s;
+  }
+  .caja:hover { transform: scale(1.2); }
+
+  /* Si el usuario prefiere menos movimiento */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+&lt;/style&gt;
+
+&lt;div class="caja"&gt;Animación opcional&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Puedes activar esta opción en tu SO (Windows: Configuración > Accesibilidad > Efectos visuales). Pruébalo y verás cómo se desactivan.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">5</span> Skip link: saltar al contenido</h3>
+    <p>El primer enlace de la página debería ser 'Saltar al contenido' para que los usuarios de teclado no tengan que pasar por todo el menú.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;style&gt;
+  .skip-link {
+    position: absolute;
+    top: -100px;  /* Oculto por defecto */
+    left: 0;
+    background: #00d9ff;
+    color: #000;
+    padding: 12px 20px;
+    z-index: 1000;
+    transition: top 0.3s;
+  }
+  .skip-link:focus {
+    top: 0;  /* Aparece al recibir foco */
+  }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;a href="#contenido" class="skip-link"&gt;Saltar al contenido&lt;/a&gt;
+
+  &lt;nav&gt;&lt;!-- Menú largo --&gt;&lt;/nav&gt;
+
+  &lt;main id="contenido"&gt;
+    &lt;h1&gt;Contenido&lt;/h1&gt;
+  &lt;/main&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+    </div>
+    <div class="tip">Pulsa Tab al cargar la página: verás aparecer el enlace. Es invisible hasta que lo necesitas.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">6</span> Contraste de color suficiente</h3>
+    <p>El texto debe ser legible. WCAG requiere contraste 4.5:1 para texto normal y 3:1 para texto grande.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  /* MAL: contraste 2.5:1 */
+  .malo {
+    color: #94a3b8;  /* Gris claro */
+    background: white;
+  }
+
+  /* BIEN: contraste 7:1 (AAA) */
+  .bueno {
+    color: #1e293b;  /* Gris muy oscuro */
+    background: white;
+  }
+
+  /* BIEN para texto grande (3:1 mínimo) */
+  .titulo-grande {
+    color: #64748b;
+    background: white;
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  p { padding: 16px; margin: 8px; }
+&lt;/style&gt;
+
+&lt;p class="malo"&gt;Difícil de leer para personas con baja visión&lt;/p&gt;
+&lt;p class="bueno"&gt;Fácil para todos&lt;/p&gt;</textarea>
+    </div>
+    <div class="tip">Comprueba tu web en webaim.org/resources/contrastchecker/ o con la herramienta DevTools del navegador.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">7</span> Jerarquía de encabezados</h3>
+    <p>Los lectores de pantalla navegan por encabezados. Respeta el orden: un <code>h2</code> después de un <code>h1</code>, nunca un <code>h4</code> sin <code>h3</code>.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;!-- BIEN: jerarquía correcta --&gt;
+&lt;main&gt;
+  &lt;h1&gt;Título de la página&lt;/h1&gt;
+  &lt;section&gt;
+    &lt;h2&gt;Primera sección&lt;/h2&gt;
+    &lt;h3&gt;Subsección&lt;/h3&gt;
+    &lt;p&gt;Contenido&lt;/p&gt;
+  &lt;/section&gt;
+  &lt;section&gt;
+    &lt;h2&gt;Segunda sección&lt;/h2&gt;
+  &lt;/section&gt;
+&lt;/main&gt;
+
+&lt;!-- MAL: saltarse niveles --&gt;
+&lt;h1&gt;Título&lt;/h1&gt;
+&lt;h4&gt;Subsección&lt;/h4&gt;  &lt;!-- ¿Dónde están h2 y h3? --&gt;
+
+&lt;!-- MAL: usar h2 solo por el tamaño --&gt;
+&lt;h2 style="font-size: 14px;"&gt;Pie pequeño&lt;/h2&gt;  &lt;!-- No, usa CSS --&gt;</textarea>
+    </div>
+    <div class="tip">Un <code>h1</code> por página. Los encabezados son estructura, no diseño. Para estilos usa CSS.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">8</span> Formularios accesibles con label</h3>
+    <p>Cada campo debe tener su <code>&lt;label&gt;</code> asociado. El lector de pantalla anuncia qué pide cada campo.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;!-- BIEN: label asociado por id --&gt;
+&lt;label for="email"&gt;Correo electrónico&lt;/label&gt;
+&lt;input type="email" id="email" name="email"&gt;
+
+&lt;!-- BIEN: label envolviendo al input --&gt;
+&lt;label&gt;
+  Acepto los términos
+  &lt;input type="checkbox"&gt;
+&lt;/label&gt;
+
+&lt;!-- Campo obligatorio + aria --&gt;
+&lt;label for="edad"&gt;Edad &lt;span aria-hidden="true"&gt;*&lt;/span&gt;&lt;/label&gt;
+&lt;input type="number" id="edad" required aria-required="true"&gt;
+
+&lt;!-- Mensaje de error asociado --&gt;
+&lt;label for="pass"&gt;Contraseña&lt;/label&gt;
+&lt;input type="password" id="pass"
+       aria-describedby="ayuda-pass"&gt;
+&lt;small id="ayuda-pass"&gt;Mínimo 8 caracteres&lt;/small&gt;</textarea>
+    </div>
+    <div class="tip"><code>aria-describedby</code> vincula el input a un texto de ayuda. El lector leerá ambos al enfocar el campo.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">9</span> aria-hidden: ocultar a lectores de pantalla</h3>
+    <p>Cuando un elemento es puramente decorativo, úsalo para que no moleste al lector de pantalla.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;!-- Icono decorativo junto a texto --&gt;
+&lt;button&gt;
+  &lt;svg aria-hidden="true" width="20" height="20"&gt;
+    &lt;!-- icono basura --&gt;
+  &lt;/svg&gt;
+  Eliminar
+&lt;/button&gt;
+
+&lt;!-- Texto visualmente oculto pero legible por screen readers --&gt;
+&lt;style&gt;
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+  }
+&lt;/style&gt;
+
+&lt;button&gt;
+  &lt;span aria-hidden="true"&gt;⋯&lt;/span&gt;
+  &lt;span class="sr-only"&gt;Más opciones&lt;/span&gt;
+&lt;/button&gt;</textarea>
+    </div>
+    <div class="tip">La clase <code>sr-only</code> (screen-reader-only) es estándar de la industria. Úsala para texto que SOLO deben oír los lectores de pantalla.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">10</span> Botón vs enlace: cuál usar</h3>
+    <p>Un <code>&lt;button&gt;</code> es para ACCIONES (enviar, abrir modal). Un <code>&lt;a&gt;</code> es para NAVEGAR (ir a otra página). No los mezcles.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;!-- BIEN: enlace para navegar --&gt;
+&lt;a href="/contacto"&gt;Ir a contacto&lt;/a&gt;
+&lt;a href="https://otraweb.com"&gt;Visitar otra web&lt;/a&gt;
+
+&lt;!-- BIEN: botón para acciones --&gt;
+&lt;button onclick="enviarForm()"&gt;Enviar&lt;/button&gt;
+&lt;button onclick="abrirModal()"&gt;Abrir&lt;/button&gt;
+
+&lt;!-- MAL: un div con onclick (no accesible) --&gt;
+&lt;div onclick="enviar()"&gt;Enviar&lt;/div&gt;  &lt;!-- No tabbable, no anunciable --&gt;
+
+&lt;!-- MAL: span con onclick --&gt;
+&lt;span onclick="cerrar()"&gt;X&lt;/span&gt;     &lt;!-- Usa un &lt;button&gt; en su lugar --&gt;</textarea>
+    </div>
+    <div class="tip">Si usas un <code>div</code> o <code>span</code> con onclick, debes añadir <code>tabindex="0"</code>, <code>role="button"</code> y manejar Enter/Espacio. Mejor usa <code>&lt;button&gt;</code>.</div>
+  </div>
+  </section>
+
+
+  <section id="visual">
+    <span class="badge pink">Tema 10 · Diseño Visual</span>
+    <h2 class="section-title"><span class="emoji-big">🎭</span> Diseño Visual</h2>
+    <div class="intro-text">El diseño visual es el acabado: sombras, bordes redondeados, espaciado, jerarquía visual. Lo que diferencia una web amateur de una profesional. Pequeños detalles, gran diferencia.</div>
+
+  <div class="ejemplo">
+    <h3><span class="num">1</span> border-radius: esquinas redondeadas</h3>
+    <p>Redondea las esquinas. Más redondeo = más amigable. Para círculos perfectos usa 50%.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .caja {
+    width: 80px; height: 80px;
+    background: #00d9ff;
+    margin: 8px; display: inline-block;
+  }
+  .r1 { border-radius: 4px; }    /* Sutil */
+  .r2 { border-radius: 12px; }   /* Moderno */
+  .r3 { border-radius: 24px; }   /* Muy redondeado */
+  .r4 { border-radius: 50%; }    /* Círculo perfecto */
+
+  /* Esquinas diferentes */
+  .r5 { border-radius: 16px 4px 16px 4px; }
+&lt;/style&gt;
+
+&lt;div class="caja r1"&gt;&lt;/div&gt;
+&lt;div class="caja r2"&gt;&lt;/div&gt;
+&lt;div class="caja r3"&gt;&lt;/div&gt;
+&lt;div class="caja r4"&gt;&lt;/div&gt;
+&lt;div class="caja r5"&gt;&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">El orden de las 4 esquinas: arriba-izq, arriba-der, abajo-der, abajo-izq (en sentido horario).</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">2</span> box-shadow: sombras</h3>
+    <p>Da profundidad. Sintaxis: <code>desplaz-x desplaz-y desenfoque color</code>. Más desenfoque = sombra más suave.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .caja {
+    width: 100px; height: 100px;
+    background: white;
+    margin: 20px; display: inline-block;
+    border-radius: 8px;
+  }
+  .sutil  { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  .media  { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .fuerte { box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+  .interna{ box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+&lt;/style&gt;
+
+&lt;div class="caja sutil"&gt;&lt;/div&gt;
+&lt;div class="caja media"&gt;&lt;/div&gt;
+&lt;div class="caja fuerte"&gt;&lt;/div&gt;
+&lt;div class="caja interna"&gt;&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip"><code>inset</code> pone la sombra DENTRO del elemento (efecto hundido). Ideal para inputs y campos.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">3</span> Sombra múltiple y de color</h3>
+    <p>Puedes apilar varias sombras separadas por coma. Útil para efectos creativos y jerarquía de profundidad.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .caja {
+    width: 120px; height: 80px;
+    background: white;
+    margin: 30px; display: inline-block;
+    border-radius: 12px;
+  }
+  /* Sombra con color (neón suave) */
+  .neon {
+    box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+  }
+  /* Doble sombra: contorno + profundidad */
+  .doble {
+    box-shadow:
+      0 1px 2px rgba(0,0,0,0.1),
+      0 8px 16px rgba(0,0,0,0.15);
+  }
+  /* Sombra inferior plana (estilo Material) */
+  .plana {
+    box-shadow: 0 4px 0 #00d9ff;
+  }
+&lt;/style&gt;
+
+&lt;div class="caja neon"&gt;&lt;/div&gt;
+&lt;div class="caja doble"&gt;&lt;/div&gt;
+&lt;div class="caja plana"&gt;&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Apilar sombras es el secreto del diseño moderno: una muy sutil para contorno + otra más grande para profundidad.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">4</span> Glassmorphism (efecto cristal)</h3>
+    <p>El efecto 'cristal esmerilado' moderno: fondo translúcido + blur. Muy usado en macOS, iOS y Windows 11.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  body {
+    background: linear-gradient(135deg, #ff2e63, #00d9ff);
+    padding: 40px;
+    min-height: 200px;
+  }
+  .glass {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 16px;
+    padding: 24px;
+    color: white;
+  }
+&lt;/style&gt;
+
+&lt;div class="glass"&gt;
+  &lt;h3&gt;Tarjeta glassmorphism&lt;/h3&gt;
+  &lt;p&gt;Fondo translúcido con blur sobre el degradado.&lt;/p&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip"><code>backdrop-filter</code> no funciona en navegadores muy antiguos. Añade <code>-webkit-backdrop-filter</code> para Safari.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">5</span> Neumorphism (efecto suave)</h3>
+    <p>El estilo 'soft UI' que parece relieve. Dos sombras: una clara arriba-izq, otra oscura abajo-der.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  body { background: #e0e5ec; padding: 40px; }
+  .neu {
+    background: #e0e5ec;
+    border-radius: 16px;
+    padding: 24px;
+    /* Sombra clara + sombra oscura = efecto relieve */
+    box-shadow:
+      8px 8px 16px #a3b1c6,
+      -8px -8px 16px #ffffff;
+  }
+  .neu-presionado {
+    background: #e0e5ec;
+    border-radius: 16px;
+    padding: 24px;
+    /* Inverso: hundido */
+    box-shadow:
+      inset 8px 8px 16px #a3b1c6,
+      inset -8px -8px 16px #ffffff;
+  }
+&lt;/style&gt;
+
+&lt;div class="neu"&gt;Saliente&lt;/div&gt;
+&lt;div class="neu-presionado"&gt;Hundido&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">El neumorphism necesita un fondo del mismo color que el elemento (sin contraste). Cuidado con accesibilidad: los botones pueden confundirse.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">6</span> Gradientes de fondo decorativos</h3>
+    <p>Usa gradientes para fondos atractivos sin imágenes. Combinación con texturas: muy profesional.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  .hero {
+    /* Degradado diagonal suave */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 60px 40px;
+    color: white;
+    border-radius: 16px;
+  }
+  .mesh {
+    /* Fondo tipo malla con varios gradientes */
+    background:
+      radial-gradient(at 20% 20%, #ff2e63 0px, transparent 50%),
+      radial-gradient(at 80% 0%, #00d9ff 0px, transparent 50%),
+      radial-gradient(at 50% 100%, #ffd93d 0px, transparent 50%),
+      #1a1a2e;
+    padding: 80px 40px;
+    color: white;
+    border-radius: 16px;
+  }
+&lt;/style&gt;
+
+&lt;div class="hero"&gt;
+  &lt;h2&gt;Hero con gradiente&lt;/h2&gt;
+&lt;/div&gt;
+&lt;div class="mesh"&gt;
+  &lt;h2&gt;Fondo mesh moderno&lt;/h2&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">El truco 'mesh gradient': 3-4 radial-gradient apilados crean un fondo malla profesional sin imágenes.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">7</span> Espaciado: padding y margin</h3>
+    <p><code>padding</code> = espacio INTERNO. <code>margin</code> = espacio EXTERNO. Sistema de espaciado consistente = diseño profesional.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  :root {
+    --espacio-xs: 4px;
+    --espacio-sm: 8px;
+    --espacio-md: 16px;
+    --espacio-lg: 24px;
+    --espacio-xl: 40px;
+  }
+
+  .card {
+    /* Padding interno: aire entre contenido y borde */
+    padding: var(--espacio-lg);
+    background: #1e293b;
+    color: white;
+    border-radius: 12px;
+    /* Margin: separación con elementos externos */
+    margin-bottom: var(--espacio-md);
+  }
+  .card h3 { margin-top: 0; margin-bottom: var(--espacio-sm); }
+  .card p  { margin: 0; }
+&lt;/style&gt;
+
+&lt;div class="card"&gt;
+  &lt;h3&gt;Tarjeta 1&lt;/h3&gt;
+  &lt;p&gt;Espaciado consistente se ve profesional.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="card"&gt;
+  &lt;h3&gt;Tarjeta 2&lt;/h3&gt;
+  &lt;p&gt;Usa variables para mantener la escala.&lt;/p&gt;
+&lt;/div&gt;</textarea>
+    </div>
+    <div class="tip">Mantén una escala de espaciado (4, 8, 16, 24, 40, 64). Si todos los espacios son múltiplos de 4, todo se alinea mágicamente.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">8</span> Jerarquía visual con tamaños y pesos</h3>
+    <p>El ojo sigue lo más grande y lo más contrastado primero. Usa tamaño + color + peso para guiar la mirada.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  body { font-family: system-ui, sans-serif; }
+  .hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+  }
+  .hero-sub {
+    font-size: 1.25rem;
+    color: #64748b;  /* Gris = menos importante */
+    font-weight: 400;
+    margin-top: 8px;
+  }
+  .cta {
+    background: #ff2e63;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;  /* Negrita = llama la atención */
+    font-size: 1rem;
+  }
+  .muted {
+    color: #94a3b8;
+    font-size: 0.875rem;
+  }
+&lt;/style&gt;
+
+&lt;h1 class="hero-title"&gt;Llamativa&lt;/h1&gt;
+&lt;p class="hero-sub"&gt;Menos llamativa pero aún importante&lt;/p&gt;
+&lt;button class="cta"&gt;Acción principal&lt;/button&gt;
+&lt;p class="muted"&gt;Información secundaria, al final de la jerarquía&lt;/p&gt;</textarea>
+    </div>
+    <div class="tip">Regla 60-30-10: 60% color dominante, 30% secundario, 10% de acento (botones, CTAs). Equilibrio visual.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">9</span> Card moderna completa</h3>
+    <p>Junta todo lo aprendido: sombras, bordes redondeados, padding, hover.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;style&gt;
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow:
+      0 1px 3px rgba(0,0,0,0.1),
+      0 10px 20px rgba(0,0,0,0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+    max-width: 320px;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 4px 8px rgba(0,0,0,0.1),
+      0 20px 40px rgba(0,0,0,0.1);
+  }
+  .card-image {
+    width: 100%; height: 160px;
+    background: linear-gradient(135deg, #ff2e63, #00d9ff);
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+  .card-badge {
+    display: inline-block;
+    background: #fef3c7; color: #92400e;
+    padding: 4px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .card h3 { margin: 0 0 8px; color: #1a1a2e; }
+  .card p { margin: 0 0 16px; color: #64748b; font-size: 14px; }
+  .card-footer {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .card-price { font-weight: 800; font-size: 1.5rem; color: #1a1a2e; }
+  .card-btn {
+    background: #1a1a2e; color: white;
+    border: none; padding: 8px 16px;
+    border-radius: 8px; cursor: pointer; font-weight: 600;
+    transition: background 0.2s;
+  }
+  .card-btn:hover { background: #ff2e63; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class="card"&gt;
+    &lt;div class="card-image"&gt;&lt;/div&gt;
+    &lt;span class="card-badge"&gt;Nuevo&lt;/span&gt;
+    &lt;h3&gt;Producto Premium&lt;/h3&gt;
+    &lt;p&gt;Descripción breve del producto, lo suficientemente atractiva.&lt;/p&gt;
+    &lt;div class="card-footer"&gt;
+      &lt;span class="card-price"&gt;$99&lt;/span&gt;
+      &lt;button class="card-btn"&gt;Comprar&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+    </div>
+    <div class="tip">Esta plantilla de tarjeta es perfecta para e-commerce. Cópiala y cambia los colores según tu marca.</div>
+  </div>
+
+  <div class="ejemplo">
+    <h3><span class="num">10</span> Botones con efecto moderno</h3>
+    <p>Diferentes estilos de botón para distintas acciones. Primario, secundario, fantasma y borde.</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;style&gt;
+  button {
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 6px;
+  }
+  .primario {
+    background: #00d9ff;
+    color: #001;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,217,255,0.4);
+  }
+  .primario:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,217,255,0.5); }
+
+  .secundario {
+    background: #1e293b;
+    color: white;
+    border: none;
+  }
+  .secundario:hover { background: #334155; }
+
+  .borde {
+    background: transparent;
+    color: #00d9ff;
+    border: 2px solid #00d9ff;
+  }
+  .borde:hover { background: #00d9ff; color: #001; }
+
+  .fantasma {
+    background: transparent;
+    color: #64748b;
+    border: none;
+    padding: 8px 12px;
+  }
+  .fantasma:hover { background: rgba(0,0,0,0.05); color: #1a1a2e; }
+&lt;/style&gt;
+
+&lt;button class="primario"&gt;Acción principal&lt;/button&gt;
+&lt;button class="secundario"&gt;Secundario&lt;/button&gt;
+&lt;button class="borde"&gt;Con borde&lt;/button&gt;
+&lt;button class="fantasma"&gt;Sutil&lt;/button&gt;</textarea>
+    </div>
+    <div class="tip">Regla: UN solo botón primario por sección. Si todos son primarios, ninguno destaca.</div>
+  </div>
+  </section>
+
+
+  <!-- CHULETA FINAL -->
+
+  <section id="chuleta">
+    <span class="badge yellow">★ Cierre</span>
+    <h2 class="section-title">📋 Chuleta final</h2>
+    <p>Resumen visual de los 10 temas con el snippet más importante de cada uno. Guárdala como referencia rápida.</p>
+    <div class="cheat-grid">
+      <div class="cheat-item"><h4>1. HTML Semántico</h4>
+        <code>&lt;header&gt; &lt;main&gt; &lt;article&gt; &lt;aside&gt; &lt;footer&gt;</code>
+        <small>Usa etiquetas con significado en vez de divs genéricos.</small>
+      </div>
+      <div class="cheat-item"><h4>2. CSS Moderno</h4>
+        <code>:root { --color: #00d9ff; } · color: var(--color)</code>
+        <small>Variables + funciones calc(), min(), max(), clamp().</small>
+      </div>
+      <div class="cheat-item"><h4>3. Flexbox</h4>
+        <code>display: flex; justify-content: center; align-items: center;</code>
+        <small>Para alinear elementos en una sola dirección.</small>
+      </div>
+      <div class="cheat-item"><h4>4. CSS Grid</h4>
+        <code>grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));</code>
+        <small>Para layouts en filas Y columnas. Responsive sin media queries.</small>
+      </div>
+      <div class="cheat-item"><h4>5. Diseño Responsive</h4>
+        <code>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</code>
+        <small>Obligatorio en el head. Sin esto, el móvil no funciona bien.</small>
+      </div>
+      <div class="cheat-item"><h4>6. Tipografía</h4>
+        <code>font-size: clamp(1rem, 5vw, 3rem); line-height: 1.6;</code>
+        <small>Tipografía responsive y legible en una línea.</small>
+      </div>
+      <div class="cheat-item"><h4>7. Color</h4>
+        <code>background: linear-gradient(135deg, #00d9ff, #ff2e63);</code>
+        <small>HSL es el formato más intuitivo. Variables para la paleta.</small>
+      </div>
+      <div class="cheat-item"><h4>8. Animaciones</h4>
+        <code>transition: transform 0.3s; .elem:hover { transform: scale(1.1); }</code>
+        <small>Anima transform y opacity (las más eficientes).</small>
+      </div>
+      <div class="cheat-item"><h4>9. Accesibilidad</h4>
+        <code>img alt="descripción" · button aria-label="Cerrar" · :focus-visible</code>
+        <small>Para que todas las personas puedan usar tu web.</small>
+      </div>
+      <div class="cheat-item"><h4>10. Diseño Visual</h4>
+        <code>border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);</code>
+        <small>Bordes redondeados + sombras suaves = acabado profesional.</small>
+      </div>
+    </div>
+    <div class="tip">Si dominas estos 10 temas, tienes el 80% del diseño frontend cubierto. El resto es práctica y observar webs que te gusten.</div>
+  </section>
+
+
+  <!-- MINI-PROYECTO -->
+
+  <section id="mini-proyecto">
+    <span class="badge pink">🚀 Mini-proyecto final</span>
+    <h2 class="section-title">Landing page que combina los 10 temas</h2>
+    <p>Una landing completa de cafetería que usa los 10 temas que acabas de aprender: HTML semántico, variables CSS, Flexbox (navbar), Grid (galería e info), responsive, tipografía con clamp(), gradientes, animaciones, accesibilidad (skip-link, focus, reduced-motion) y diseño visual (sombras, radios, hover).</p>
+    <div class="chips">
+      <span class="chip">HTML semántico</span>
+      <span class="chip">Variables CSS</span>
+      <span class="chip">Flexbox</span>
+      <span class="chip">Grid</span>
+      <span class="chip">Responsive</span>
+      <span class="chip">Tipografía</span>
+      <span class="chip">Color</span>
+      <span class="chip">Animaciones</span>
+      <span class="chip">Accesibilidad</span>
+      <span class="chip">Diseño visual</span>
+    </div>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">📋 Copiar</button>
+      <textarea class="code" readonly wrap="off" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html lang="es"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;title&gt;Landing Café · Mini-proyecto&lt;/title&gt;
+  &lt;style&gt;
+    /* === Variables (Tema 2) === */
+    :root {
+      --primario: #c8702c;
+      --primario-claro: #e8a062;
+      --fondo: #faf6f1;
+      --texto: #2a1810;
+      --muted: #6b5b50;
+      --card-bg: #ffffff;
+      --sombra: 0 4px 16px rgba(42, 24, 16, 0.08);
+      --radio: 16px;
+      --espacio: clamp(1rem, 4vw, 2rem);
+    }
+
+    /* === Reset === */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--fondo);
+      color: var(--texto);
+      line-height: 1.6;
+    }
+
+    /* === Tipografía (Tema 6) === */
+    h1 { font-size: clamp(2.2rem, 6vw, 4rem); line-height: 1.05; font-weight: 800; }
+    h2 { font-size: clamp(1.6rem, 4vw, 2.4rem); margin-bottom: 0.5em; }
+    h3 { font-size: 1.2rem; margin-bottom: 0.4em; color: var(--primario); }
+    p  { color: var(--muted); margin-bottom: 1em; }
+    .lead { font-size: clamp(1.05rem, 2vw, 1.25rem); max-width: 60ch; }
+
+    /* === Layout: HTML semántico (Tema 1) === */
+    header, main, section, footer { padding: var(--espacio); }
+
+    /* === Navbar con Flexbox (Tema 3) === */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem var(--espacio);
+      background: var(--card-bg);
+      box-shadow: var(--sombra);
+      position: sticky; top: 0; z-index: 10;
+    }
+    nav .logo { font-weight: 800; color: var(--primario); font-size: 1.3rem; }
+    nav ul {
+      display: flex; gap: 1.5rem; list-style: none;
+    }
+    nav a {
+      color: var(--texto); text-decoration: none;
+      font-weight: 500; transition: color 0.2s;
+    }
+    nav a:hover { color: var(--primario); }
+
+    /* === Hero con gradiente (Tema 7) === */
+    .hero {
+      text-align: center;
+      padding: clamp(3rem, 10vw, 6rem) var(--espacio);
+      background: linear-gradient(135deg, var(--primario-claro), var(--primario));
+      color: white;
+    }
+    .hero h1 { color: white; }
+    .hero p { color: rgba(255,255,255,0.95); max-width: 600px; margin: 1em auto; }
+    .hero .badge-hero {
+      display: inline-block; background: rgba(255,255,255,0.2);
+      padding: 0.4em 1em; border-radius: 20px;
+      font-size: 0.85rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      margin-bottom: 1em;
+    }
+
+    /* === Botón con animación (Tema 8 + 10) === */
+    .btn {
+      display: inline-block;
+      background: var(--texto); color: white;
+      padding: 0.8em 1.8em;
+      border: none; border-radius: 999px;
+      font-weight: 700; font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+    .btn:focus-visible {
+      outline: 3px solid var(--primario-claro);
+      outline-offset: 3px;
+    }
+    .btn-primario { background: var(--primario); }
+    .btn-primario:hover { background: var(--texto); }
+
+    /* === Galería con Grid responsive (Tema 4 + 5) === */
+    .galeria {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--espacio);
+      max-width: 1100px; margin: 0 auto;
+    }
+    .producto {
+      background: var(--card-bg);
+      border-radius: var(--radio);
+      overflow: hidden;
+      box-shadow: var(--sombra);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .producto:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 24px rgba(42,24,16,0.15);
+    }
+    .producto-img {
+      width: 100%; height: 180px;
+      background: linear-gradient(135deg, var(--primario-claro), var(--primario));
+    }
+    .producto-body { padding: 1.2rem; }
+    .producto h3 { color: var(--texto); margin-bottom: 0.3em; }
+    .producto .precio {
+      font-size: 1.4rem; font-weight: 800;
+      color: var(--primario); display: block; margin: 0.5em 0;
+    }
+    .producto button {
+      width: 100%; background: var(--primario);
+      color: white; border: none; padding: 0.7em;
+      border-radius: 8px; font-weight: 700; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .producto button:hover { background: var(--texto); }
+
+    /* === Secciónnos con Layout Grid (Tema 4) === */
+    .info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--espacio);
+      max-width: 1100px; margin: 0 auto;
+    }
+    .info article {
+      background: var(--card-bg);
+      padding: 1.5rem; border-radius: var(--radio);
+      box-shadow: var(--sombra);
+    }
+    .info article h3 { color: var(--primario); }
+
+    /* === Footer semántico (Tema 1) === */
+    footer {
+      background: var(--texto); color: var(--muted);
+      text-align: center; padding: 2rem var(--espacio);
+      margin-top: 3rem;
+    }
+    footer a { color: var(--primario-claro); text-decoration: none; }
+
+    /* === Accesibilidad (Tema 9) === */
+    .skip-link {
+      position: absolute; top: -100px; left: 0;
+      background: var(--primario); color: white;
+      padding: 0.8em 1.5em; z-index: 1000;
+      transition: top 0.3s;
+    }
+    .skip-link:focus { top: 0; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;a href="#contenido" class="skip-link"&gt;Saltar al contenido&lt;/a&gt;
+
+  &lt;!-- === Navbar con Flexbox === --&gt;
+  &lt;nav&gt;
+    &lt;div class="logo"&gt;☕ Café del Bosque&lt;/div&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href="#inicio"&gt;Inicio&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href="#productos"&gt;Productos&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href="#info"&gt;Nosotros&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/nav&gt;
+
+  &lt;!-- === Hero con gradiente y tipografía responsive === --&gt;
+  &lt;header class="hero" id="inicio"&gt;
+    &lt;span class="badge-hero"&gt;Tostado artesanal&lt;/span&gt;
+    &lt;h1&gt;Café que despierta el bosque&lt;/h1&gt;
+    &lt;p&gt;Granos seleccionados a mano, tostados en pequeños lotes cada mañana. Sabor que cuenta historias.&lt;/p&gt;
+    &lt;button class="btn"&gt;Ver productos&lt;/button&gt;
+  &lt;/header&gt;
+
+  &lt;main id="contenido"&gt;
+    &lt;!-- === Galería con Grid + cards con hover === --&gt;
+    &lt;section id="productos"&gt;
+      &lt;h2&gt;Nuestros cafés&lt;/h2&gt;
+      &lt;p&gt;Variedades para cada momento del día.&lt;/p&gt;
+      &lt;div class="galeria"&gt;
+        &lt;article class="producto"&gt;
+          &lt;div class="producto-img"&gt;&lt;/div&gt;
+          &lt;div class="producto-body"&gt;
+            &lt;h3&gt;Suave Mañana&lt;/h3&gt;
+            &lt;p&gt;Tueste claro, ideal para empezar el día.&lt;/p&gt;
+            &lt;span class="precio"&gt;$12&lt;/span&gt;
+            &lt;button&gt;Añadir al carrito&lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/article&gt;
+        &lt;article class="producto"&gt;
+          &lt;div class="producto-img" style="background: linear-gradient(135deg, #8b4513, #c8702c);"&gt;&lt;/div&gt;
+          &lt;div class="producto-body"&gt;
+            &lt;h3&gt;Tarde Dorada&lt;/h3&gt;
+            &lt;p&gt;Tueste medio, equilibrado y aromático.&lt;/p&gt;
+            &lt;span class="precio"&gt;$14&lt;/span&gt;
+            &lt;button&gt;Añadir al carrito&lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/article&gt;
+        &lt;article class="producto"&gt;
+          &lt;div class="producto-img" style="background: linear-gradient(135deg, #2a1810, #6b3a1a);"&gt;&lt;/div&gt;
+          &lt;div class="producto-body"&gt;
+            &lt;h3&gt;Noche Intensa&lt;/h3&gt;
+            &lt;p&gt;Tueste oscuro, intenso y con cuerpo.&lt;/p&gt;
+            &lt;span class="precio"&gt;$15&lt;/span&gt;
+            &lt;button&gt;Añadir al carrito&lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/article&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;!-- === Sección de info con Grid === --&gt;
+    &lt;section id="info"&gt;
+      &lt;h2&gt;Por qué elegirnos&lt;/h2&gt;
+      &lt;div class="info"&gt;
+        &lt;article&gt;
+          &lt;h3&gt;🌱 Cultivo sostenible&lt;/h3&gt;
+          &lt;p&gt;Trabajamos con pequeños productores que cuidan el bosque y la tierra.&lt;/p&gt;
+        &lt;/article&gt;
+        &lt;article&gt;
+          &lt;h3&gt;🔥 Tueste diario&lt;/h3&gt;
+          &lt;p&gt;Tostamos cada mañana en lotes pequeños para garantizar frescura.&lt;/p&gt;
+        &lt;/article&gt;
+        &lt;article&gt;
+          &lt;h3&gt;🚚 Envío gratis&lt;/h3&gt;
+          &lt;p&gt;En pedidos superiores a $30. Llega en 48 horas a tu casa.&lt;/p&gt;
+        &lt;/article&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+  &lt;/main&gt;
+
+  &lt;footer&gt;
+    &lt;p&gt;© 2025 Café del Bosque · Hecho con cariño&lt;/p&gt;
+    &lt;p&gt;&lt;a href="#"&gt;Términos&lt;/a&gt; · &lt;a href="#"&gt;Privacidad&lt;/a&gt; · &lt;a href="#"&gt;Contacto&lt;/a&gt;&lt;/p&gt;
+  &lt;/footer&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+    </div>
+    <div class="tip">Copia el código, pégalo en un archivo <code>index.html</code> y ábrelo en tu navegador. ¡Tienes una landing completa funcional!</div>
+  </section>
+
+
+</main>
+
+<button id="scroll-top" aria-label="Volver arriba">↑</button>
+<div class="toast" id="toast">¡Copiado!</div>
+
+<script>
+  // === Menú ===
+  const menu = document.getElementById('menu');
+  document.getElementById('menu-btn').addEventListener('click', () => menu.classList.add('open'));
+  document.getElementById('close-menu').addEventListener('click', () => menu.classList.remove('open'));
+  document.querySelectorAll('.menu a').forEach(a => {
+    a.addEventListener('click', () => menu.classList.remove('open'));
+  });
+
+  // === Toast ===
+  const toast = document.getElementById('toast');
+  function mostrarToast(txt) {
+    toast.textContent = txt;
+    toast.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => toast.classList.remove('show'), 1600);
+  }
+
+  // === Copiar ===
+  function copiarTexto(texto) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(texto);
+    }
+    return new Promise((resolve, reject) => {
+      const ta = document.createElement('textarea');
+      ta.value = texto;
+      ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;';
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      try { document.execCommand('copy'); resolve(); }
+      catch (e) { reject(e); }
+      document.body.removeChild(ta);
+    });
+  }
+
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const wrap = btn.closest('.code-wrap');
+      const code = wrap.querySelector('.code');
+      copiarTexto(code.value).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = '✅ ¡Copiado!';
+        btn.classList.add('ok');
+        mostrarToast('Código copiado al portapapeles');
+        setTimeout(() => { btn.textContent = orig; btn.classList.remove('ok'); }, 1500);
+      }).catch(() => mostrarToast('No se pudo copiar'));
+    });
+  });
+
+  // === Progreso + scroll top ===
+  const progressFill = document.getElementById('progress-fill');
+  const progressText = document.getElementById('progress-text');
+  const scrollTop = document.getElementById('scroll-top');
+
+  function actualizarProgreso() {
+    const st = window.scrollY;
+    const dh = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = dh > 0 ? Math.round((st / dh) * 100) : 0;
+    progressFill.style.width = pct + '%';
+    progressText.textContent = pct + '%';
+    scrollTop.classList.toggle('show', st > 300);
+  }
+  window.addEventListener('scroll', actualizarProgreso, { passive: true });
+  window.addEventListener('resize', actualizarProgreso);
+  actualizarProgreso();
+
+  scrollTop.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // === Scroll-spy ===
+  const secciones = document.querySelectorAll('section[id]');
+  const enlaces = document.querySelectorAll('.menu a[href^="#"]');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        enlaces.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+
+  secciones.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
